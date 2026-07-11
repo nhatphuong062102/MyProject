@@ -17,6 +17,7 @@ NCTX=16
 CSC=False
 lambda=0.25
 topk=50
+kalign=10
 
 for SEED in 1
 do
@@ -36,6 +37,7 @@ do
         --output-dir ${DIR} \
         --lambda_value ${lambda} \
         --topk ${topk} \
+        --kalign ${kalign} \
         --is_bonder True \
         --is_dense True \
         --is_sc True \

@@ -13,6 +13,7 @@ CFG=vit_b16_ep25
 NCTX=16
 
 T=1
+kalign=10
 # SHOTS=16
 # MODEL_dir=$5
 # Output_dir=$5
@@ -35,6 +36,7 @@ do
             --load-epoch 200 \
             --config-file configs/trainers/${TRAINER}/${CFG}.yaml \
             --T ${T} \
+            --kalign ${kalign} \
             DATASET.SUBSAMPLE_CLASSES base \
             DATASET.NUM_SHOTS ${SHOTS}
         done

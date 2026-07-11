@@ -53,6 +53,10 @@ def reset_cfg(cfg, args):
     if args.topk:
         cfg.topk = args.topk
 
+    # k_align
+    if args.kalign:
+        cfg.kalign = args.kalign
+
     cfg.in_dataset = args.in_dataset
     cfg.is_bonder = args.is_bonder
     cfg.is_dense = args.is_dense
@@ -88,6 +92,9 @@ def extend_cfg(cfg):
     cfg.Adapter.MLP = True
     cfg.Adapter.Visual = False
     cfg.Adapter.Text = False
+
+    # k_align
+    cfg.kalign = 10
 
 
 def setup_cfg(args):
@@ -219,6 +226,11 @@ if __name__ == "__main__":
                         help='temperature parameter')
     parser.add_argument('--topk', type=int, default=50,
                         help='topk')
+    
+    # k_align
+    parser.add_argument('--kalign', type=int, default=10,
+                        help='kalign for Description-aware Local Image-Text Alignment')
+    
     # augment for MCM and GL-MCM
     parser.add_argument('-b', '--batch-size', default=128, type=int,
                         help='mini-batch size')
