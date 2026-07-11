@@ -87,6 +87,75 @@ def get_dense_logits2(image_features, local_image_features, all_text_features, m
     return logits
 
 
+def get_description_aware_alignment(image_features, local_image_features, all_text_features, mean_text_features, kalign=10):
+    """
+    beta tinh theo t_{c,0},
+    KHONG base_logits.
+
+    image_features        : [bs, d]         Global image embeddings
+    local_image_features  : [bs, N, d]      Zlocal - local image embeddings
+    all_text_features     : [n_disc, C, d]  Tc - refined text embeddings, index 0 = t_{c,0}
+    mean_text_features    : [C, d]          Text embeddings trung binh cua tung class
+    kalign                : so vung anh cuc bo top-k cho moi description, mac dinh kalign = 10
+
+    return:
+    uc : [bs, C]  alignment score
+    """
+    n_desc, n_cls, d = all_text_features.shape
+
+    # Eq.1-2
+    sim = torch.einsum('bnd,icd->bcin', local_image_features, all_text_features)   # [bs,C,n_disc,N]
+    topk_sim, _ = sim.topk(dim=-1, k=kalign)                                       # [bs,C,n_disc,kalign]
+    l_ci = topk_sim.mean(dim=-1)                                                   # [bs,C,n_disc]
+
+    # Eq.3: beta_i = softmax_i h(t_{c,i}, t_{c,0})
+    label_desc = all_text_features[0:1]                                            # [1, C, d]
+    sim_desc = (all_text_features * label_desc).sum(dim=-1)                        # [n_disc, C]
+    beta = F.softmax(sim_desc, dim=0)
+
+    # Eq.4
+    beta_b = beta.transpose(0, 1).unsqueeze(0)                                  # [1, C, n_disc]
+    uc = (l_ci * beta_b).sum(dim=-1)                                            # [bs, C]
+    return uc
+
+
+def get_description_aware_alignment_v2(image_features, local_image_features, all_text_features, mean_text_features, kalign=10):
+    """
+    beta tinh theo mean_text_features 
+    CO base_logits
+
+    image_features        : [bs, d]        global image embedding
+    local_image_features  : [bs, N, d]     Zlocal - local image embeddings
+    all_text_features     : [n_disc, C, d] Tc - refined text embeddings
+    mean_text_features    : [C, d]         Text embedding trung binh cua tung class
+    kalign                : so vung anh cuc bo top-k duoc chon cho moi description, mac dinh kalign = 10
+
+    return:
+    logits : [bs, C]  = base_logits + uc
+    """
+    n_disc, n_cls, d = all_text_features.shape
+
+    # base_logits: global image feature vs mean text feature
+    base_logits = image_features @ mean_text_features.T                   # [bs, C]
+
+    # Eq.1-2: local alignment (khong doi so voi ban truoc)
+    sim = torch.einsum('bnd,icd->bcin', local_image_features, all_text_features)  # [bs,C,n_disc,N]
+    topk_sim, _ = sim.topk(dim=-1, k=kalign)                                      # [bs,C,n_disc,kalign]
+    l_ci = topk_sim.mean(dim=-1)                                                  # [bs,C,n_disc]
+
+    # Eq.3 (bien the): beta_i = softmax_i h(t_{c,i}, mean_text_c)
+    mean_text_expand = mean_text_features.unsqueeze(0)                     # [1, C, d]
+    sim_desc = (all_text_features * mean_text_expand).sum(dim=-1)          # [n_disc, C]  cosine vi da normalize
+    beta = F.softmax(sim_desc, dim=0)                                      # softmax theo truc n_disc
+
+   # Eq.4
+    beta_b = beta.transpose(0, 1).unsqueeze(0)                             # [1, C, n_disc]
+    uc = (l_ci * beta_b).sum(dim=-1)                                       # [bs, C]
+
+    logits = base_logits + uc
+    return logits
+
+
 def get_supc_loss(g_img_feats, id_loc_feats, ood_loc_feats, text_stu, text_tea, label, n_class=99, topk=50):
     bs, k, d = id_loc_feats.shape
     _, n_disc, _ = text_tea.shape
@@ -321,10 +390,9 @@ class CustomCLIP(nn.Module):
             updated_proto_mean_norm = updated_proto_mean / updated_proto_mean.norm(dim=-1, keepdim=True)
 
         logit_scale = self.logit_scale.exp()
-        
 
-        logits = logit_scale * get_dense_logits2(image_features.detach(), local_image_features.detach(), updated_proto_norm, updated_proto_mean_norm, topk=self.cfg.topk)
-        logits_local = logit_scale * get_dense_logits2(image_features, local_image_features, self.all_text_features_tea.detach(), self.text_features_tea.detach(), topk=self.cfg.topk)      # 图像端的准确率
+        logits = logit_scale * get_description_aware_alignment_v2(image_features.detach(), local_image_features.detach(), updated_proto_norm, updated_proto_mean_norm, kalign=self.cfg.kalign)
+        logits_local = logit_scale * get_description_aware_alignment_v2(image_features, local_image_features, self.all_text_features_tea.detach(), self.text_features_tea.detach(), kalign=self.cfg.kalign)
 
         return logits, logits_local, image_features_tea, image_features, updated_proto_norm, id_loc_feats, ood_loc_feats, l2p, l2p_tea
 
