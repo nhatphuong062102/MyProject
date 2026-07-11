@@ -54,6 +54,10 @@ def reset_cfg(cfg, args):
     if args.topk:
         cfg.topk = args.topk
 
+    # k_align
+    if args.kalign:
+        cfg.kalign = args.kalign
+
     cfg.is_mine = args.is_mine
 
     cfg.is_bonder = args.is_bonder
@@ -99,6 +103,9 @@ def extend_cfg(cfg):
     cfg.Adapter.MLP = True
     cfg.Adapter.Visual = False
     cfg.Adapter.Text = False
+
+    # k_align
+    cfg.kalign = 10
 
 
 def setup_cfg(args):
@@ -198,6 +205,11 @@ if __name__ == "__main__":
                         help='weight for regulization loss')
     parser.add_argument('--topk', type=int, default=200,
                         help='topk for extracted OOD regions')
+    
+    # k_align
+    parser.add_argument('--kalign', type=int, default=10,
+                        help='kalign for Description-aware Local Image-Text Alignment')
+
     parser.add_argument('--is_mine', type=bool, default=False,
                         help='projection on local featrues')
     parser.add_argument('--is_bonder', type=bool, default=False,
