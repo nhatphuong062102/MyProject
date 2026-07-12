@@ -105,6 +105,10 @@ def get_description_aware_alignment(image_features, local_image_features, all_te
 
     # Eq.1-2
     sim = torch.einsum('bnd,icd->bcin', local_image_features, all_text_features)   # [bs,C,n_disc,N]
+    N = sim.shape[-1]
+    assert kalign <= N, (
+        f"kalign ({kalign}) must be less than or equal to the number of local image regions N ({N})."
+    )
     topk_sim, _ = sim.topk(dim=-1, k=kalign)                                       # [bs,C,n_disc,kalign]
     l_ci = topk_sim.mean(dim=-1)                                                   # [bs,C,n_disc]
 
@@ -140,6 +144,10 @@ def get_description_aware_alignment_v2(image_features, local_image_features, all
 
     # Eq.1-2: local alignment (khong doi so voi ban truoc)
     sim = torch.einsum('bnd,icd->bcin', local_image_features, all_text_features)  # [bs,C,n_disc,N]
+    N = sim.shape[-1]
+    assert kalign <= N, (
+        f"kalign ({kalign}) must be less than or equal to the number of local image regions N ({N})."
+    )
     topk_sim, _ = sim.topk(dim=-1, k=kalign)                                      # [bs,C,n_disc,kalign]
     l_ci = topk_sim.mean(dim=-1)                                                  # [bs,C,n_disc]
 
