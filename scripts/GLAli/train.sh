@@ -39,6 +39,7 @@ do
         --topk ${topk} \
         --kalign ${kalign} \
         --is_bonder True \
+        --use_refined True \
         --is_dense True \
         --is_sc True \
         TRAINER.LOCOOP.N_CTX ${NCTX} \

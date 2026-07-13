@@ -590,13 +590,13 @@ class LocProto(TrainerX):
 
         print(f"Evaluate on the *{split}* set")
 
-        if self.cfg.is_bonder:
+        if self.cfg.use_refined:
             self.model.text_prototypes = torch.load(osp.join(self.output_dir, 'proto.pth'))
         for batch_idx, batch in enumerate(tqdm(data_loader)):
             input, label = self.parse_batch_test(batch)
             output = self.model_inference(input)
             if len(output) >= 2:
-                if self.cfg.is_bonder:
+                if self.cfg.use_refined:
                     output = output[1] + 0.05 * output[0]
                 else:
                     output = output[0]
@@ -631,7 +631,7 @@ class LocProto(TrainerX):
                 images = images.cuda()
             images = images.cuda()
             output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
-            if self.cfg.is_bonder:
+            if self.cfg.use_refined:
                 output = output_local + 0.05 * output
             output /= 100.0
             output_local /= 100.0

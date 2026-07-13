@@ -59,6 +59,9 @@ def reset_cfg(cfg, args):
 
     cfg.in_dataset = args.in_dataset
     cfg.is_bonder = args.is_bonder
+
+    cfg.use_refined = args.use_refined
+
     cfg.is_dense = args.is_dense
 
 
@@ -144,7 +147,11 @@ def main(args):
     trainer = build_trainer(cfg)
 
     trainer.load_model(args.model_dir, epoch=args.load_epoch)
-    if trainer.cfg.is_bonder and trainer.cfg.TRAINER=="LocProto":
+
+    # trainer.cfg.TRAINER == "LocProto" luon False vi trainer.cfg.TRAINER
+    # la mot CfgNode chu khong phai string (phai la trainer.cfg.TRAINER.NAME moi dung) -> dong nay
+    # khong bao gio thuc thi.
+    if trainer.cfg.use_refined and trainer.cfg.TRAINER=="LocProto":
         trainer.model.text_prototypes = torch.load(osp.join(args.model_dir, 'proto.pth'))
 
 
@@ -240,6 +247,10 @@ if __name__ == "__main__":
                         help='temperature parameter')
     parser.add_argument('--is_bonder', type=bool, default=False,
                         help='temperature parameter')
+    
+    parser.add_argument('--use_refined', type=bool, default=False,
+                        help='load proto.pth va dung cong thuc ket hop')
+
     parser.add_argument('--is_dense', type=bool, default=False,
                         help='temperature parameter')
     args = parser.parse_args()

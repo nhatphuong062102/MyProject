@@ -62,6 +62,8 @@ def reset_cfg(cfg, args):
 
     cfg.is_bonder = args.is_bonder
 
+    cfg.use_refined = args.use_refined
+
     cfg.is_dense = args.is_dense
     cfg.is_sc = args.is_sc
 
@@ -214,6 +216,10 @@ if __name__ == "__main__":
                         help='projection on local featrues')
     parser.add_argument('--is_bonder', type=bool, default=False,
                         help='projection on local featrues')
+    
+    parser.add_argument('--use_refined', type=bool, default=False,
+                        help='load proto.pth va dung cong thuc ket hop')
+
     parser.add_argument('--is_dense', type=bool, default=False,
                         help='projection on local featrues')
     parser.add_argument('--is_sc', type=bool, default=False,
