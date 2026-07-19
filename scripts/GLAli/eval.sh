@@ -40,7 +40,8 @@ do
             --use_refined True \
             --kalign ${kalign} \
             DATASET.SUBSAMPLE_CLASSES base \
-            DATASET.NUM_SHOTS ${SHOTS}
+            DATASET.NUM_SHOTS ${SHOTS} \
+            #TEST.PER_CLASS_RESULT True \
         done
     done
 done
