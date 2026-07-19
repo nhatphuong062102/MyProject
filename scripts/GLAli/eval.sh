@@ -6,7 +6,7 @@ TRAINER=LocProto
 CSC=False
 CTP=end
 
-DATA=/data16/Public/Datasets/
+DATA=data/
 # DATASET=skin40
 CFG=vit_b16_ep25
 
@@ -19,7 +19,7 @@ kalign=10
 # Output_dir=$5
 
 # SEED=2
-for DATASET in skin40  # eurosat fgvc_aircraft stanford_cars skin40 ISIC
+for DATASET in ${1:-BTXRD}  # eurosat fgvc_aircraft stanford_cars skin40 ISIC
 do
     for SHOTS in 16
     do

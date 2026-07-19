@@ -12,6 +12,7 @@ import trainers.locproto_supc
 import datasets.skin40
 import datasets.ISIC
 import datasets.Dermnet
+import datasets.BTXRD
 from os import path as osp
 
 def print_args(args, cfg):
@@ -155,7 +156,7 @@ def main(args):
         trainer.model.text_prototypes = torch.load(osp.join(args.model_dir, 'proto.pth'))
 
 
-    if args.in_dataset in ['skin40', 'ISIC', 'Dermnet']:
+    if args.in_dataset in ['skin40', 'ISIC', 'Dermnet', 'BTXRD']:
         out_datasets = [item for item in ['skin40', 'ISIC', 'Dermnet'] if item != args.in_dataset]
         id_data_loader = trainer.dm.id_loader
 

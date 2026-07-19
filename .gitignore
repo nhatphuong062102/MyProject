@@ -129,7 +129,8 @@ dmypy.json
 .pyre/
 
 # Custom
-output/
+#output/
 debug.sh
 data/
 Dassl.pytorch/
+description/BTXRD.json

@@ -9,6 +9,7 @@ import trainers.locproto_supc
 import datasets.skin40
 import datasets.ISIC
 import datasets.Dermnet
+import datasets.BTXRD
 torch.cuda.empty_cache()
 
 

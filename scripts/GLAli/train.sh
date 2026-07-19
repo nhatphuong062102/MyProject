@@ -2,10 +2,9 @@
 # custom config
 TRAINER=LocProto
 
-# DATA=$1
-DATA=/data16/Public/Datasets/
-# DATASET=$2
-DATASET=skin40
+DATA=data/
+# DATASET=$1
+DATASET=${1:-BTXRD}
 # CFG=$3  # config file
 CFG=vit_b16_ep25
 # CTP=$4  # class token position (end or middle)
