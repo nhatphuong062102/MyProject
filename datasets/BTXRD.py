@@ -15,6 +15,7 @@ ID_CLASSES = [
     "Multiple osteochondromas",
     "Simple bone cyst",
 ]
+
 OOD_CLASSES = [
     "Giant cell tumor",
     "Synovial osteochondroma",
@@ -81,7 +82,7 @@ class BTXRD(DatasetBase):
 
         train, test = self.select_by_classnames(train, test, selected_names = ID_CLASSES)
         id = self.select_by_classnames(ori_test, selected_names = ID_CLASSES)[0]
-        ood = self.select_by_classnames(train, test, selected_names = OOD_CLASSES)[0]
+        ood = self.select_by_classnames(ori_test, selected_names = OOD_CLASSES)[0]
         self.id = id
         self.ood = ood
 
