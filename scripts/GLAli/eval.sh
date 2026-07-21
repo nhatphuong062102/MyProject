@@ -25,7 +25,7 @@ do
     do
         for SEED in 1
         do
-            CUDA_VISIBLE_DEVICES=7 python eval_ood_detection.py \
+            CUDA_VISIBLE_DEVICES=0 python eval_ood_detection.py \
             --root ${DATA} \
             --in_dataset ${DATASET} \
             --trainer ${TRAINER} \
