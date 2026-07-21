@@ -1,4 +1,5 @@
 import time
+import random
 import numpy as np
 import os.path as osp
 import datetime
@@ -116,9 +117,7 @@ class TrainerBase:
         else:
             return names_real
 
-    def save_model(
-        self, epoch, directory, is_best=False, val_result=None, model_name=""
-    ):
+    def save_model(self, epoch, directory, is_best=False, val_result=None, model_name=""):
         names = self.get_model_names()
 
         for name in names:
@@ -132,18 +131,27 @@ class TrainerBase:
             if self._scheds[name] is not None:
                 sched_dict = self._scheds[name].state_dict()
 
+            rng_state = {
+                "torch": torch.get_rng_state(),
+                "cuda": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
+                "numpy": np.random.get_state(),
+                "python": random.getstate(),
+            }
+
             save_checkpoint(
                 {
                     "state_dict": model_dict,
                     "epoch": epoch + 1,
                     "optimizer": optim_dict,
                     "scheduler": sched_dict,
-                    "val_result": val_result
+                    "val_result": val_result,
+                    "rng_state": rng_state,
                 },
                 osp.join(directory, name),
                 is_best=is_best,
                 model_name=model_name,
             )
+
 
     def resume_model_if_exist(self, directory):
         names = self.get_model_names()
