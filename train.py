@@ -215,10 +215,10 @@ if __name__ == "__main__":
 
     parser.add_argument('--is_mine', type=bool, default=False,
                         help='projection on local featrues')
-    parser.add_argument('--is_bonder', type=bool, default=False,
-                        help='projection on local featrues')
     
-    parser.add_argument('--use_refined', type=bool, default=False,
+    parser.add_argument('--is-bonder', action="store_true")
+    
+    parser.add_argument('--use_refined', action="store_true",
                         help='load proto.pth va dung cong thuc ket hop')
 
     parser.add_argument('--is_dense', type=bool, default=False,

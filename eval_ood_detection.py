@@ -266,11 +266,10 @@ if __name__ == "__main__":
                         help='temperature parameter')
     parser.add_argument('--is_mine', type=bool, default=False,
                         help='temperature parameter')
-    parser.add_argument('--is_bonder', type=bool, default=False,
-                        help='temperature parameter')
     
-    parser.add_argument('--use_refined', type=bool, default=False,
-                        help='load proto.pth va dung cong thuc ket hop')
+    parser.add_argument("--is_bonder", action="store_true", help = 'Enable bonder')
+
+    parser.add_argument("--use_refined", action="store_true")
 
     parser.add_argument('--is_dense', type=bool, default=False,
                         help='temperature parameter')
