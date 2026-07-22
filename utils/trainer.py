@@ -431,6 +431,8 @@ class SimpleTrainer(TrainerBase):
         # 如果修改了原型，保存原型
         if self.cfg.is_bonder and not osp.isfile(osp.join(self.output_dir, 'proto.pth')):
             torch.save(self.model.text_prototypes, osp.join(self.output_dir, 'proto.pth'))
+            print("Save refined text embedding")
+
         do_test = not self.cfg.TEST.NO_TEST
         if do_test:
             if self.cfg.TEST.FINAL_MODEL == "best_val":

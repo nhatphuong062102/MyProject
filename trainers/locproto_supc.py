@@ -592,6 +592,8 @@ class LocProto(TrainerX):
 
         if self.cfg.use_refined:
             self.model.text_prototypes = torch.load(osp.join(self.output_dir, 'proto.pth'))
+            print("Load refined text embedding")
+
         for batch_idx, batch in enumerate(tqdm(data_loader)):
             input, label = self.parse_batch_test(batch)
             output = self.model_inference(input)
