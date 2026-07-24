@@ -13,7 +13,7 @@ CFG=vit_b16_ep25
 NCTX=16
 
 T=1
-kalign=10
+kalign=${2:-10}
 # SHOTS=16
 # MODEL_dir=$5
 # Output_dir=$5
