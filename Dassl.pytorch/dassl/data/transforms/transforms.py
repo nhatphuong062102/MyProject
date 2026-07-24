@@ -331,10 +331,11 @@ def _build_transform_test(cfg, choices, target_size, normalize):
     input_size = cfg.INPUT.SIZE
 
     print(f"+ resize the smaller edge to {max(input_size)}")
-    tfm_test += [Resize(max(input_size), interpolation=interp_mode)]
+    #tfm_test += [Resize(max(input_size), interpolation=interp_mode)]
+    tfm_test += [Resize(input_size, interpolation=interp_mode)]  # bo CenterCrop
 
-    print(f"+ {target_size} center crop")
-    tfm_test += [CenterCrop(input_size)]
+    # print(f"+ {target_size} center crop")
+    # tfm_test += [CenterCrop(input_size)]
 
     print("+ to torch tensor of range [0, 1]")
     tfm_test += [ToTensor()]
