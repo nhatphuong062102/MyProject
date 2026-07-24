@@ -514,12 +514,13 @@ class LocProto(TrainerX):
 
             self.model_backward_and_update(loss)
 
+        output_ens = output_local + 0.05 * output
         loss_summary = {
             "loss": loss.item(),
             "loss_id": loss_id.item(),
             "loss_distil_img": loss_distil_img.item(),
             "loss_distil_text": loss_distil_text.item(),
-            "acc": compute_accuracy(output_local, label)[0].item(),
+            "acc": compute_accuracy(output_ens, label)[0].item(),
         }
 
         if (self.batch_idx + 1) == self.num_batches:
