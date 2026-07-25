@@ -570,6 +570,51 @@ class LocProto(TrainerX):
             # set strict=False
             self._models[name].load_state_dict(state_dict, strict=False)
 
+    # @torch.no_grad()
+    # def test(self, split=None):
+    #     """A generic testing pipeline."""
+    #     self.model.image_features_store = []
+    #     self.set_model_mode("eval")
+    #     self.evaluator.reset()
+
+    #     if split is None:
+    #         split = self.cfg.TEST.SPLIT
+
+    #     if split == "val" and self.val_loader is not None:
+    #         data_loader = self.val_loader
+    #     elif split == "test":
+    #         split = "test"  # in case val_loader is None
+    #         data_loader = self.test_loader
+    #     else:
+    #         split = "train"
+    #         data_loader = self.train_loader_x
+
+    #     print(f"Evaluate on the *{split}* set")
+
+    #     if self.cfg.use_refined:
+    #         self.model.text_prototypes = torch.load(osp.join(self.output_dir, 'proto.pth'))
+    #         print("Load refined text embedding")
+
+    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
+    #         input, label = self.parse_batch_test(batch)
+    #         output = self.model_inference(input)
+    #         if len(output) >= 2:
+    #             if self.cfg.use_refined:
+    #                 output = output[1] + 0.05 * output[0]
+    #             else:
+    #                 output = output[0]
+    #         self.label.append(label)
+    #         self.evaluator.process(output, label)
+
+    #     results = self.evaluator.evaluate()
+
+    #     for k, v in results.items():
+    #         tag = f"{split}/{k}"
+    #         self.write_scalar(tag, v, self.epoch)
+
+    #     return list(results.values())[0]
+
+
     @torch.no_grad()
     def test(self, split=None):
         """A generic testing pipeline."""
@@ -597,22 +642,34 @@ class LocProto(TrainerX):
 
         for batch_idx, batch in enumerate(tqdm(data_loader)):
             input, label = self.parse_batch_test(batch)
+
+            multi_crop = input.dim() == 5
+            if multi_crop:
+                bsz, k_crops = input.shape[0], input.shape[1]
+                input = input.view(bsz * k_crops, *input.shape[2:])
+
             output = self.model_inference(input)
             if len(output) >= 2:
                 if self.cfg.use_refined:
                     output = output[1] + 0.05 * output[0]
                 else:
                     output = output[0]
+
+            if multi_crop:
+                output = output.view(bsz, k_crops, -1)
+                output = F.softmax(output, dim=-1).mean(dim=1)
+
             self.label.append(label)
             self.evaluator.process(output, label)
 
         results = self.evaluator.evaluate()
-
+ 
         for k, v in results.items():
             tag = f"{split}/{k}"
             self.write_scalar(tag, v, self.epoch)
-
+ 
         return list(results.values())[0]
+
 
     @torch.no_grad()
     def test_ood(self, data_loader, T):
