@@ -9,6 +9,8 @@ from torchvision.transforms import (
 )
 from torchvision.transforms.functional import InterpolationMode
 
+from PIL import ImageOps
+
 from .autoaugment import SVHNPolicy, CIFAR10Policy, ImageNetPolicy
 from .randaugment import RandAugment, RandAugment2, RandAugmentFixMatch
 
@@ -38,6 +40,27 @@ INTERPOLATION_MODES = {
     "bicubic": InterpolationMode.BICUBIC,
     "nearest": InterpolationMode.NEAREST,
 }
+
+class ResizeAndPad:
+    def __init__(self, size, interpolation, fill=0):
+        self.size = size
+        self.interpolation = interpolation
+        self.fill = fill
+
+    def __call__(self, img):
+        w, h = img.size
+        long_side = max(w, h)
+        scale = self.size / long_side
+        new_w, new_h = int(round(w * scale)), int(round(h * scale))
+        img = img.resize((new_w, new_h), self.interpolation)
+
+        pad_w = self.size - new_w
+        pad_h = self.size - new_h
+        left = pad_w // 2
+        right = pad_w - left
+        top = pad_h // 2
+        bottom = pad_h - top
+        return ImageOps.expand(img, border=(left, top, right, bottom), fill=self.fill)
 
 
 class Random2DTranslation:
@@ -331,11 +354,10 @@ def _build_transform_test(cfg, choices, target_size, normalize):
     input_size = cfg.INPUT.SIZE
 
     print(f"+ resize the smaller edge to {max(input_size)}")
-    #tfm_test += [Resize(max(input_size), interpolation=interp_mode)]
-    tfm_test += [Resize(input_size, interpolation=interp_mode)]  # bo CenterCrop
+    tfm_test += [Resize(max(input_size), interpolation=interp_mode)]
 
-    # print(f"+ {target_size} center crop")
-    # tfm_test += [CenterCrop(input_size)]
+    print(f"+ {target_size} center crop")
+    tfm_test += [CenterCrop(input_size)]
 
     print("+ to torch tensor of range [0, 1]")
     tfm_test += [ToTensor()]
@@ -353,3 +375,30 @@ def _build_transform_test(cfg, choices, target_size, normalize):
     tfm_test = Compose(tfm_test)
 
     return tfm_test
+
+# def _build_transform_test(cfg, choices, target_size, normalize):
+#     print("Building transform_test")
+#     tfm_test = []
+
+#     interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
+#     input_size = cfg.INPUT.SIZE
+
+#     print(f"+ resize long edge to {max(input_size)}, pad short edge to square")
+#     tfm_test += [ResizeAndPad(size=max(input_size), interpolation=interp_mode, fill=0)]
+
+#     print("+ to torch tensor of range [0, 1]")
+#     tfm_test += [ToTensor()]
+
+#     if "normalize" in choices:
+#         print(
+#             f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})"
+#         )
+#         tfm_test += [normalize]
+
+#     if "instance_norm" in choices:
+#         print("+ instance normalization")
+#         tfm_test += [InstanceNormalization()]
+
+#     tfm_test = Compose(tfm_test)
+
+#     return tfm_test
