@@ -52,7 +52,8 @@ class ResizeAndPad:
         long_side = max(w, h)
         scale = self.size / long_side
         new_w, new_h = int(round(w * scale)), int(round(h * scale))
-        img = img.resize((new_w, new_h), self.interpolation)
+        img = F.resize(img=img, size=[new_h, new_w], interpolation=self.interpolation)
+
 
         pad_w = self.size - new_w
         pad_h = self.size - new_h
