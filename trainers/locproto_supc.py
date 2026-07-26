@@ -660,11 +660,11 @@ class LocProto(TrainerX):
                 #output = output.view(bsz, k_crops, -1)
                 #output = F.softmax(output, dim=-1).mean(dim=1)
 
-                #Hệ số 0.7 crop-3 và 0.3 full-1
+                #Hệ số 0.73 crop-3 và 0.27 full-1
                 output = output.view(bsz, k_crops, -1)
                 head = output[:, :-1].mean(dim=1)
                 tail = output[:, -1]
-                logits = 0.7 * head + 0.3 * tail
+                logits = 0.73 * head + 0.27 * tail
                 output = F.softmax(logits, dim=-1)
 
             self.label.append(label)
@@ -698,9 +698,6 @@ class LocProto(TrainerX):
                 images = images.cuda()
             images = images.cuda()
 
-            # ho tro multi-crop test-time (giong het test()): neu images la
-            # [B,K,C,H,W] (vd tu MultiCropSquare) thay vi [B,C,H,W] thong
-            # thuong, gop K crop vao batch de chay model 1 lan.
             multi_crop = images.dim() == 5
             if multi_crop:
                 bsz, k_crops = images.shape[0], images.shape[1]
@@ -715,10 +712,21 @@ class LocProto(TrainerX):
             smax_local = F.softmax(output_local/T, dim=-1)
 
             if multi_crop:
-                # lay trung binh XAC SUAT qua K crop (dung cach ensemble
-                # giong het test(), khong lay trung binh tren logit tho)
-                smax_global = smax_global.view(bsz, k_crops, -1).mean(dim=1)
-                smax_local = smax_local.view(bsz, k_crops, -1).mean(dim=1)
+                #Hệ số 0.25 đều
+                #smax_global = smax_global.view(bsz, k_crops, -1).mean(dim=1)
+                #smax_local = smax_local.view(bsz, k_crops, -1).mean(dim=1)
+
+                #Hệ số 0.73 crop-3 và 0.27 full-1
+                smax_global = smax_global.view(bsz, k_crops, -1)
+                smax_local = smax_local.view(bsz, k_crops, -1)
+                smax_global = (
+                    0.73 * smax_global[:, :-1, :].mean(dim=1)
+                    + 0.27 * smax_global[:, -1, :]
+                )
+                smax_local = (
+                    0.73 * smax_local[:, :-1, :].mean(dim=1)
+                    + 0.27 * smax_local[:, -1, :]
+                )
 
             smax_global = to_np(smax_global)
             smax_local = to_np(smax_local)
