@@ -670,7 +670,6 @@ class LocProto(TrainerX):
  
         return list(results.values())[0]
 
-
     @torch.no_grad()
     def test_ood(self, data_loader, T):
         """Test-time OOD detection pipeline."""
@@ -690,17 +689,67 @@ class LocProto(TrainerX):
             else:
                 images = images.cuda()
             images = images.cuda()
+
+            # ho tro multi-crop test-time (giong het test()): neu images la
+            # [B,K,C,H,W] (vd tu MultiCropSquare) thay vi [B,C,H,W] thong
+            # thuong, gop K crop vao batch de chay model 1 lan.
+            multi_crop = images.dim() == 5
+            if multi_crop:
+                bsz, k_crops = images.shape[0], images.shape[1]
+                images = images.view(bsz * k_crops, *images.shape[2:])
+
             output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
             if self.cfg.use_refined:
                 output = output_local + 0.05 * output
             output /= 100.0
             output_local /= 100.0
-            smax_global = to_np(F.softmax(output/T, dim=-1))  
-            smax_local = to_np(F.softmax(output_local/T, dim=-1))
+            smax_global = F.softmax(output/T, dim=-1)
+            smax_local = F.softmax(output_local/T, dim=-1)
+
+            if multi_crop:
+                # lay trung binh XAC SUAT qua K crop (dung cach ensemble
+                # giong het test(), khong lay trung binh tren logit tho)
+                smax_global = smax_global.view(bsz, k_crops, -1).mean(dim=1)
+                smax_local = smax_local.view(bsz, k_crops, -1).mean(dim=1)
+
+            smax_global = to_np(smax_global)
+            smax_local = to_np(smax_local)
             mcm_global_score = -np.max(smax_global, axis=1)
             mcm_score.append(mcm_global_score)
 
         return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
+
+
+    # @torch.no_grad()
+    # def test_ood(self, data_loader, T):
+    #     """Test-time OOD detection pipeline."""
+    #     self.model.image_features_store = []
+    #     to_np = lambda x: x.data.cpu().numpy()
+    #     concat = lambda x: np.concatenate(x, axis=0)
+
+    #     self.set_model_mode("eval")
+    #     self.evaluator.reset()
+
+    #     glmcm_score = []
+    #     mcm_score = []
+    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
+    #         (images, labels, *id_flag) = batch
+    #         if isinstance(images, str):
+    #             images, label = self.parse_batch_test(batch)
+    #         else:
+    #             images = images.cuda()
+    #         images = images.cuda()
+    #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
+    #         if self.cfg.use_refined:
+    #             output = output_local + 0.05 * output
+    #         output /= 100.0
+    #         output_local /= 100.0
+    #         smax_global = to_np(F.softmax(output/T, dim=-1))  
+    #         smax_local = to_np(F.softmax(output_local/T, dim=-1))
+    #         mcm_global_score = -np.max(smax_global, axis=1)
+    #         mcm_score.append(mcm_global_score)
+
+    #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
 
     @torch.no_grad()
     def test_ood1(self, data_loader, T):

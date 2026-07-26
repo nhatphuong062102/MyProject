@@ -443,7 +443,8 @@ def _build_transform_test(cfg, choices, target_size, normalize):
     print("Building transform_test")
     interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
     input_size = cfg.INPUT.SIZE
-    choices.append("multi_crop_test")
+    #choices.append("multi_crop_test")
+    choices += ("multi_crop_test",)
  
     if "multi_crop_test" in choices:
         # tra ve thang 1 tensor [K,C,H,W] cho moi anh (K=3 mac dinh), tu lam
@@ -451,6 +452,8 @@ def _build_transform_test(cfg, choices, target_size, normalize):
         # nua vi cac buoc do da nam trong MultiCropSquare.__call__
         print("+ multi-crop test (3 vung vuong doc theo canh dai, khong pad, "
               "khong meo ti le)")
+        print("+ to torch tensor of range [0, 1]")
+        print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})")
         return MultiCropSquare(
             size=input_size, interpolation=interp_mode, normalize=normalize, k=3
         )
