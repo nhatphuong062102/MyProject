@@ -65,12 +65,11 @@ class ResizeAndPad:
 
 
 class MultiCropSquare:
-    def __init__(self, size, interpolation, normalize, k=3, add_full_resize=True, fill=0):
+    def __init__(self, size, interpolation, normalize, k=3, fill=0):
         self.size = size  # vd (224, 224)
         self.interpolation = interpolation
         self.normalize = normalize
         self.k = k
-        self.add_full_resize = add_full_resize
         self.fill = fill
         self.to_tensor = ToTensor()
  
@@ -86,8 +85,7 @@ class MultiCropSquare:
         while len(crops) < self.k:
             crops.append(crops[-1])  # anh gan vuong: lap lai crop cuoi cho du K
         crops = crops[: self.k]
-        if self.add_full_resize:
-            crops.append(img)  # anh goc nguyen ven, chua resize; se bi meo
+        crops.append(img)  # anh goc nguyen ven, chua resize; se bi meo
             # ti le o buoc resize ben duoi neu anh khong vuong
         return crops
  
@@ -460,9 +458,7 @@ def _build_transform_test(cfg, choices, target_size, normalize):
               "khong meo ti le)")
         print("+ to torch tensor of range [0, 1]")
         print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})")
-        return MultiCropSquare(
-            size=input_size, interpolation=interp_mode, normalize=normalize, k=3, add_full_resize=True
-        )
+        return MultiCropSquare(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
  
     tfm_test = []
     print(f"+ resize long edge to {max(input_size)}, pad short edge to square")

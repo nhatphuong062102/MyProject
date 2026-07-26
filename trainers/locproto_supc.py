@@ -656,8 +656,16 @@ class LocProto(TrainerX):
                     output = output[0]
 
             if multi_crop:
+                #Hệ số đều nhau 0.25
+                #output = output.view(bsz, k_crops, -1)
+                #output = F.softmax(output, dim=-1).mean(dim=1)
+
+                #Hệ số 0.7 crop-3 và 0.3 full-1
                 output = output.view(bsz, k_crops, -1)
-                output = F.softmax(output, dim=-1).mean(dim=1)
+                head = output[:, :-1].mean(dim=1)
+                tail = output[:, -1]
+                logits = 0.7 * head + 0.3 * tail
+                output = F.softmax(logits, dim=-1)
 
             self.label.append(label)
             self.evaluator.process(output, label)
