@@ -661,7 +661,7 @@ class LocProto(TrainerX):
                 if k_crops == 4:
                     crop3_avg = output[:, :3, :].mean(dim=1)
                     full_view = output[:, 3, :]
-                    output = 0.73 * crop3_avg + 0.27 * full_view
+                    output = 0.7 * crop3_avg + 0.3 * full_view
                 else:
                     output = output.mean(dim=1)
 
@@ -713,10 +713,8 @@ class LocProto(TrainerX):
                 smax_global = smax_global.view(bsz, k_crops, -1)
                 smax_local = smax_local.view(bsz, k_crops, -1)
                 if k_crops == 4:
-                    smax_global = 0.73 * smax_global[:, :3, :].mean(dim=1) \
-                        + 0.27 * smax_global[:, 3, :]
-                    smax_local = 0.73 * smax_local[:, :3, :].mean(dim=1) \
-                        + 0.27 * smax_local[:, 3, :]
+                    smax_global = 0.7 * smax_global[:, :3, :].mean(dim=1) + 0.3 * smax_global[:, 3, :]
+                    smax_local = 0.7 * smax_local[:, :3, :].mean(dim=1) + 0.3 * smax_local[:, 3, :]
                 else:
                     smax_global = smax_global.mean(dim=1)
                     smax_local = smax_local.mean(dim=1)
