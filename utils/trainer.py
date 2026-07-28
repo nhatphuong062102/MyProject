@@ -315,6 +315,10 @@ class TrainerBase:
     def model_backward(self, loss):
         self.detect_anomaly(loss)
         loss.backward()
+        # Gradient clipping
+        # for name in self.get_model_names():
+        #     if self._optims[name] is not None:
+        #         torch.nn.utils.clip_grad_norm_(self._models[name].parameters(), max_norm=1.0)
 
     def model_update(self, names=None):
         names = self.get_model_names(names)

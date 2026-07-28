@@ -336,6 +336,7 @@ class CustomCLIP(nn.Module):
         # Bonder
         if cfg.is_bonder:
             self.bonder = CrossAttnBlock(512)
+            #self.bonder = CrossAttnBlock(512, drop=0.1, attn_drop=0.1)    #Dropout cho bonder
             self.bonder.to(self.dtype)
 
     def forward(self, image, mask=None, labels = None):
@@ -459,7 +460,8 @@ class LocProto(TrainerX):
             
             if cfg.is_bonder:
                 cfg.OPTIM2 = deepcopy(cfg.OPTIM)
-                cfg.OPTIM2.LR = cfg.OPTIM.LR
+                cfg.OPTIM2.LR = cfg.OPTIM.LR    # Phiên bản LR dùng chung
+                #cfg.OPTIM2.LR = 1e-3           # Phiên bản riêng cho bonder
                 self.optim2 = build_optimizer(self.model.bonder, cfg.OPTIM2)
                 self.sched2 = build_lr_scheduler(self.optim2, cfg.OPTIM2)
                 self.register_model("bonder_learner", self.model.bonder, self.optim2,
