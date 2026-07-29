@@ -83,7 +83,8 @@ def extend_cfg(cfg):
     cfg.TRAINER.LOCOOP.N_CTX = 16  # number of context vectors
     cfg.TRAINER.LOCOOP.CSC = False  # class-specific context
     cfg.TRAINER.LOCOOP.CTX_INIT = ""  # initialization words
-    cfg.TRAINER.LOCOOP.PREC = "fp16"  # fp16, fp32, amp
+    #cfg.TRAINER.LOCOOP.PREC = "fp16"
+    cfg.TRAINER.LOCOOP.PREC = "fp32"  # fp16, fp32, amp
     cfg.TRAINER.LOCOOP.CLASS_TOKEN_POSITION = "end"  # 'middle' or 'end' or 'front'
 
     cfg.DATASET.SUBSAMPLE_CLASSES = "all"  # all, base or new
