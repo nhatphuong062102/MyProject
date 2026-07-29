@@ -322,6 +322,7 @@ class CustomCLIP(nn.Module):
                     text_features.append(clip_model.encode_text(prompts)) # n_desc x d
         self.all_prompt = torch.cat(all_prompt)
 
+        #text_features = torch.cat(text_features)
         text_features = torch.cat(text_features).to(clip_model.dtype)   # (n_cls x n_desc) x d
         _, d = text_features.shape
         self.ndisc = 51
