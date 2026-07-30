@@ -336,8 +336,7 @@ class CustomCLIP(nn.Module):
 
         # Bonder
         if cfg.is_bonder:
-            self.bonder = CrossAttnBlock(128)
-            #self.bonder = CrossAttnBlock(512, drop=0.1, attn_drop=0.1)    #Dropout cho bonder
+            self.bonder = CrossAttnBlock(512, drop=0.1, attn_drop=0.1)    #Dropout cho bonder
             self.bonder.to(self.dtype)
 
     def forward(self, image, mask=None, labels = None):

@@ -16,7 +16,7 @@ INPUT:
 OPTIM:
   NAME: "adamw"
   LR: 2e-5                #2e-5: Phiên bản riêng ; 5e-5: Phiên bản chung
-  WEIGHT_DECAY: 0.05
+  WEIGHT_DECAY: 0.01
   MAX_EPOCH: 25
   LR_SCHEDULER: "cosine"
   WARMUP_EPOCH: 3
