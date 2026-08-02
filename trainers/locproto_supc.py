@@ -520,6 +520,7 @@ class LocProto(TrainerX):
         loss_summary = {
             "loss": loss.item(),
             "loss_id": loss_id.item(),
+            "loss_id2": loss_id2.item(),
             "loss_distil_img": loss_distil_img.item(),
             "loss_distil_text": loss_distil_text.item(),
             "acc": compute_accuracy(output_ens, label)[0].item(),
