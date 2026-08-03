@@ -22,11 +22,11 @@ NCTX=16
 CSC=False
 
 #lambda=0.25
-lambda=${3:-0.25}
+lambda=${2:-0.25}
 
 topk=50
 
-kalign=${2:-10}
+kalign=10
 
 for SEED in 1
 do
