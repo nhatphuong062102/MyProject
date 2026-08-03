@@ -3,19 +3,29 @@
 TRAINER=LocProto
 
 DATA=data/
+
 # DATASET=$1
 DATASET=${1:-BTXRD}
+
 # CFG=$3  # config file
 CFG=vit_b16_ep25
+
 # CTP=$4  # class token position (end or middle)
 CTP=end
+
 # NCTX=$5  # number of context tokens
 NCTX=16
+
 # SHOTS=$6  # number of shots (1, 2, 4, 8, 16)
+
 # CSC=$7  # class-specific context (False or True)
 CSC=False
-lambda=0.25
+
+#lambda=0.25
+lambda=${3:-0.25}
+
 topk=50
+
 kalign=${2:-10}
 
 for SEED in 1
