@@ -57,6 +57,6 @@ do
         DATASET.NUM_SHOTS ${SHOTS} \
         DATASET.SUBSAMPLE_CLASSES base \
         TRAIN.CHECKPOINT_FREQ 10 \
-        #TEST.PER_CLASS_RESULT True 
+        TEST.NO_TEST True 
     done
 done
