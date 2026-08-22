@@ -9,11 +9,18 @@ def readme():
     return content
 
 
+# def find_version():
+#     version_file = 'dassl/__init__.py'
+#     with open(version_file, 'r') as f:
+#         exec(compile(f.read(), version_file, 'exec'))
+#     return locals()['__version__']
+
 def find_version():
     version_file = 'dassl/__init__.py'
     with open(version_file, 'r') as f:
-        exec(compile(f.read(), version_file, 'exec'))
-    return locals()['__version__']
+        namespace = {}
+        exec(compile(f.read(), version_file, 'exec'), namespace)
+    return namespace['__version__']
 
 
 def numpy_include():
