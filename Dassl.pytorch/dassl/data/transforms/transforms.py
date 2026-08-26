@@ -463,49 +463,49 @@ def _build_transform_train(cfg, choices, target_size, normalize):
 #     return tfm_test
 
 
-"""Transform RESIZE thẳng về 224 x 224"""
-def _build_transform_test(cfg, choices, target_size, normalize):
-    print("Building transform_test")
-    print("Transform RESIZE TRỰC TIẾP")
-    tfm_test = []
-
-    interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
-    input_size = cfg.INPUT.SIZE
-
-    print(f"+ resize to {target_size}")
-    tfm_test += [Resize(input_size, interpolation=interp_mode)]
-
-    print("+ to torch tensor of range [0, 1]")
-    tfm_test += [ToTensor()]
-
-    if "normalize" in choices:
-        print(
-            f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})"
-        )
-        tfm_test += [normalize]
-
-    if "instance_norm" in choices:
-        print("+ instance normalization")
-        tfm_test += [InstanceNormalization()]
-
-    tfm_test = Compose(tfm_test)
-
-    return tfm_test
-
-
-"""Transform tạo 3 CROP"""
+"""Transform RESIZE thẳng về 224 x 224  -- XONG """
 # def _build_transform_test(cfg, choices, target_size, normalize):
 #     print("Building transform_test")
+#     print("Transform RESIZE TRỰC TIẾP")
+#     tfm_test = []
 
 #     interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
 #     input_size = cfg.INPUT.SIZE
 
-#     print("+ multi-crop (3 crop)")
-#     print("+ to torch tensor of range [0, 1]")
-#     print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, "
-#           f"std={cfg.INPUT.PIXEL_STD})")
+#     print(f"+ resize to {target_size}")
+#     tfm_test += [Resize(input_size, interpolation=interp_mode)]
 
-#     return MultiCropSquare2(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
+#     print("+ to torch tensor of range [0, 1]")
+#     tfm_test += [ToTensor()]
+
+#     if "normalize" in choices:
+#         print(
+#             f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})"
+#         )
+#         tfm_test += [normalize]
+
+#     if "instance_norm" in choices:
+#         print("+ instance normalization")
+#         tfm_test += [InstanceNormalization()]
+
+#     tfm_test = Compose(tfm_test)
+
+#     return tfm_test
+
+
+"""Transform tạo 3 CROP"""
+def _build_transform_test(cfg, choices, target_size, normalize):
+    print("Building transform_test")
+
+    interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
+    input_size = cfg.INPUT.SIZE
+
+    print("+ multi-crop (3 crop)")
+    print("+ to torch tensor of range [0, 1]")
+    print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, "
+          f"std={cfg.INPUT.PIXEL_STD})")
+
+    return MultiCropSquare2(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
 
 
 """Transform tạo 3 CROP và 1 FULL resize thẳng 224 x 224"""
