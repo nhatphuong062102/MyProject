@@ -431,40 +431,42 @@ def _build_transform_train(cfg, choices, target_size, normalize):
 """ ====================== TRANSFORM TEST ====== START ========================== """
 
 """Transform gốc - CENTER CROP"""
-# def _build_transform_test(cfg, choices, target_size, normalize):
-#     print("Building transform_test")
-#     tfm_test = []
+def _build_transform_test(cfg, choices, target_size, normalize):
+    print("Building transform_test")
+    print("Transform gốc - CENTER CROP")
+    tfm_test = []
 
-#     interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
-#     input_size = cfg.INPUT.SIZE
+    interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
+    input_size = cfg.INPUT.SIZE
 
-#     print(f"+ resize the smaller edge to {max(input_size)}")
-#     tfm_test += [Resize(max(input_size), interpolation=interp_mode)]
+    print(f"+ resize the smaller edge to {max(input_size)}")
+    tfm_test += [Resize(max(input_size), interpolation=interp_mode)]
       
-#     print(f"+ {target_size} center crop")
-#     tfm_test += [CenterCrop(input_size)]
+    print(f"+ {target_size} center crop")
+    tfm_test += [CenterCrop(input_size)]
 
-#     print("+ to torch tensor of range [0, 1]")
-#     tfm_test += [ToTensor()]
+    print("+ to torch tensor of range [0, 1]")
+    tfm_test += [ToTensor()]
 
-#     if "normalize" in choices:
-#         print(
-#             f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})"
-#         )
-#         tfm_test += [normalize]
+    if "normalize" in choices:
+        print(
+            f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})"
+        )
+        tfm_test += [normalize]
 
-#     if "instance_norm" in choices:
-#         print("+ instance normalization")
-#         tfm_test += [InstanceNormalization()]
+    if "instance_norm" in choices:
+        print("+ instance normalization")
+        tfm_test += [InstanceNormalization()]
 
-#     tfm_test = Compose(tfm_test)
+    tfm_test = Compose(tfm_test)
 
-#     return tfm_test
+    return tfm_test
 
 
 """Transform RESIZE thẳng về 224 x 224"""
 # def _build_transform_test(cfg, choices, target_size, normalize):
 #     print("Building transform_test")
+#     print("Transform gốc - RESIZE TRỰC TIẾP")
 #     tfm_test = []
 
 #     interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
@@ -498,7 +500,7 @@ def _build_transform_train(cfg, choices, target_size, normalize):
 #     interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
 #     input_size = cfg.INPUT.SIZE
 
-#     print("+ multi-crop")
+#     print("+ multi-crop (3 crop)")
 #     print("+ to torch tensor of range [0, 1]")
 #     print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, "
 #           f"std={cfg.INPUT.PIXEL_STD})")
@@ -507,18 +509,18 @@ def _build_transform_train(cfg, choices, target_size, normalize):
 
 
 """Transform tạo 3 CROP và 1 FULL resize thẳng 224 x 224"""
-def _build_transform_test(cfg, choices, target_size, normalize):
-    print("Building transform_test")
+# def _build_transform_test(cfg, choices, target_size, normalize):
+#     print("Building transform_test")
 
-    interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
-    input_size = cfg.INPUT.SIZE
+#     interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
+#     input_size = cfg.INPUT.SIZE
 
-    print("+ multi-crop")
-    print(f"+ add 1 full image, resized to target_size={target_size}")
-    print("+ to torch tensor of range [0, 1]")
-    print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})")
+#     print("+ multi-crop (3 crop)")
+#     print(f"+ add 1 full image resized to target_size={target_size}")
+#     print("+ to torch tensor of range [0, 1]")
+#     print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})")
 
-    return MultiCropSquare(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
+#     return MultiCropSquare(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
 
 
 """ ====================== TRANSFORM TEST ====== END ============================ """
