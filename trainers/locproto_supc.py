@@ -799,65 +799,7 @@ class LocProto(TrainerX):
     #     return list(results.values())[0]
     
 
-    """Hàm test() cho transform tạo 3 CROP - kết hợp dựa trên dự đoán lớn nhất MAX"""
-    @torch.no_grad()
-    def test(self, split=None):
-        """A generic testing pipeline."""
-        self.model.image_features_store = []
-        self.set_model_mode("eval")
-        self.evaluator.reset()
-
-        if split is None:
-            split = self.cfg.TEST.SPLIT
-
-        if split == "val" and self.val_loader is not None:
-            data_loader = self.val_loader
-        elif split == "test":
-            split = "test"  # in case val_loader is None
-            data_loader = self.test_loader
-        else:
-            split = "train"
-            data_loader = self.train_loader_x
-
-        print(f"Evaluate on the *{split}* set")
-
-        if self.cfg.use_refined:
-            self.model.text_prototypes = torch.load(osp.join(self.output_dir, 'proto.pth'))
-            print("Load refined text embedding")
-
-        for batch_idx, batch in enumerate(tqdm(data_loader)):
-            input, label = self.parse_batch_test(batch)
-
-            multi_crop = input.dim() == 5
-            if multi_crop:
-                bsz, k_crops = input.shape[0], input.shape[1]
-                input = input.view(bsz * k_crops, *input.shape[2:])
-
-            output = self.model_inference(input)
-            if len(output) >= 2:
-                if self.cfg.use_refined:
-                    output = output[1] + 0.05 * output[0]
-                else:
-                    output = output[1]
-
-            if multi_crop:
-                output = output.view(bsz, k_crops, -1)
-                output = output.max(dim=1)[0]     # (B, C) - lấy logit cao nhất mỗi class qua 3 crop
-
-            self.label.append(label)
-            self.evaluator.process(output, label)
-
-        results = self.evaluator.evaluate()
-
-        for k, v in results.items():
-            tag = f"{split}/{k}"
-            self.write_scalar(tag, v, self.epoch)
-
-        return list(results.values())[0]
-
-
-
-    """Hàm test() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên LOGITS"""
+    """Hàm test() cho transform tạo 3 CROP - kết hợp dựa trên dự đoán lớn nhất MAX -- XONG """
     # @torch.no_grad()
     # def test(self, split=None):
     #     """A generic testing pipeline."""
@@ -894,27 +836,85 @@ class LocProto(TrainerX):
     #         output = self.model_inference(input)
     #         if len(output) >= 2:
     #             if self.cfg.use_refined:
-    #                 output = output[1] + 0.05 * output[0]      #origin
-    #                 #output = output[0]
+    #                 output = output[1] + 0.05 * output[0]
     #             else:
     #                 output = output[1]
 
     #         if multi_crop:
-    #             output = output.view(bsz, k_crops, -1)          # (B, 4, C): 3 crop + 1 full
-    #             crop3_avg = output[:, :3, :].mean(dim=1)          # raw logits, không softmax
-    #             full_view = output[:, 3, :]
-    #             output = 0.7 * crop3_avg + 0.3 * full_view
+    #             output = output.view(bsz, k_crops, -1)
+    #             output = output.max(dim=1)[0]     # (B, C) - lấy logit cao nhất mỗi class qua 3 crop
 
     #         self.label.append(label)
     #         self.evaluator.process(output, label)
 
     #     results = self.evaluator.evaluate()
-    
+
     #     for k, v in results.items():
     #         tag = f"{split}/{k}"
     #         self.write_scalar(tag, v, self.epoch)
-    
+
     #     return list(results.values())[0]
+
+
+
+    """Hàm test() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên LOGITS"""
+    @torch.no_grad()
+    def test(self, split=None):
+        """A generic testing pipeline."""
+        self.model.image_features_store = []
+        self.set_model_mode("eval")
+        self.evaluator.reset()
+
+        if split is None:
+            split = self.cfg.TEST.SPLIT
+
+        if split == "val" and self.val_loader is not None:
+            data_loader = self.val_loader
+        elif split == "test":
+            split = "test"  # in case val_loader is None
+            data_loader = self.test_loader
+        else:
+            split = "train"
+            data_loader = self.train_loader_x
+
+        print(f"Evaluate on the *{split}* set")
+
+        if self.cfg.use_refined:
+            self.model.text_prototypes = torch.load(osp.join(self.output_dir, 'proto.pth'))
+            print("Load refined text embedding")
+
+        for batch_idx, batch in enumerate(tqdm(data_loader)):
+            input, label = self.parse_batch_test(batch)
+
+            multi_crop = input.dim() == 5
+            if multi_crop:
+                bsz, k_crops = input.shape[0], input.shape[1]
+                input = input.view(bsz * k_crops, *input.shape[2:])
+
+            output = self.model_inference(input)
+            if len(output) >= 2:
+                if self.cfg.use_refined:
+                    output = output[1] + 0.05 * output[0]      #origin
+                    #output = output[0]
+                else:
+                    output = output[1]
+
+            if multi_crop:
+                output = output.view(bsz, k_crops, -1)          # (B, 4, C): 3 crop + 1 full
+                crop3_avg = output[:, :3, :].mean(dim=1)          # raw logits, không softmax
+                full_view = output[:, 3, :]
+                output = 0.7 * crop3_avg + 0.3 * full_view
+
+            self.label.append(label)
+            self.evaluator.process(output, label)
+
+        results = self.evaluator.evaluate()
+    
+        for k, v in results.items():
+            tag = f"{split}/{k}"
+            self.write_scalar(tag, v, self.epoch)
+    
+        return list(results.values())[0]
 
 
     """Hàm test() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên SOFTMAX -- XONG"""
@@ -1092,6 +1092,241 @@ class LocProto(TrainerX):
 
     #             crop3_avg = crop3_logits.max(dim=1)[0]               # (B, C) - logit lớn nhất qua 3 crop
     #             output = 0.7 * crop3_avg + 0.3 * full_view
+
+    #         self.label.append(label)
+    #         self.evaluator.process(output, label)
+
+    #     results = self.evaluator.evaluate()
+    
+    #     for k, v in results.items():
+    #         tag = f"{split}/{k}"
+    #         self.write_scalar(tag, v, self.epoch)
+    
+    #     return list(results.values())[0]
+
+
+    """Hàm test() cho transform tạo 3 CROP và 1 FULL - CHIA ĐỀU - LOGITS """
+    # @torch.no_grad()
+    # def test(self, split=None):
+    #     """A generic testing pipeline."""
+    #     self.model.image_features_store = []
+    #     self.set_model_mode("eval")
+    #     self.evaluator.reset()
+
+    #     if split is None:
+    #         split = self.cfg.TEST.SPLIT
+
+    #     if split == "val" and self.val_loader is not None:
+    #         data_loader = self.val_loader
+    #     elif split == "test":
+    #         split = "test"  # in case val_loader is None
+    #         data_loader = self.test_loader
+    #     else:
+    #         split = "train"
+    #         data_loader = self.train_loader_x
+
+    #     print(f"Evaluate on the *{split}* set")
+
+    #     if self.cfg.use_refined:
+    #         self.model.text_prototypes = torch.load(osp.join(self.output_dir, 'proto.pth'))
+    #         print("Load refined text embedding")
+
+    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
+    #         input, label = self.parse_batch_test(batch)
+
+    #         multi_crop = input.dim() == 5
+    #         if multi_crop:
+    #             bsz, k_crops = input.shape[0], input.shape[1]
+    #             input = input.view(bsz * k_crops, *input.shape[2:])
+
+    #         output = self.model_inference(input)
+    #         if len(output) >= 2:
+    #             if self.cfg.use_refined:
+    #                 output = output[1] + 0.05 * output[0]      #origin
+    #                 #output = output[0]
+    #             else:
+    #                 output = output[1]
+
+    #         if multi_crop:
+    #             output = output.view(bsz, k_crops, -1)
+    #             output = output.mean(dim=1)
+
+    #         self.label.append(label)
+    #         self.evaluator.process(output, label)
+
+    #     results = self.evaluator.evaluate()
+    
+    #     for k, v in results.items():
+    #         tag = f"{split}/{k}"
+    #         self.write_scalar(tag, v, self.epoch)
+    
+    #     return list(results.values())[0]
+
+    
+    """Hàm test() cho transform tạo 3 CROP và 1 FULL - CHIA ĐỀU - SOFTMAX"""
+    # @torch.no_grad()
+    # def test(self, split=None):
+    #     """A generic testing pipeline."""
+    #     self.model.image_features_store = []
+    #     self.set_model_mode("eval")
+    #     self.evaluator.reset()
+
+    #     if split is None:
+    #         split = self.cfg.TEST.SPLIT
+
+    #     if split == "val" and self.val_loader is not None:
+    #         data_loader = self.val_loader
+    #     elif split == "test":
+    #         split = "test"  # in case val_loader is None
+    #         data_loader = self.test_loader
+    #     else:
+    #         split = "train"
+    #         data_loader = self.train_loader_x
+
+    #     print(f"Evaluate on the *{split}* set")
+
+    #     if self.cfg.use_refined:
+    #         self.model.text_prototypes = torch.load(osp.join(self.output_dir, 'proto.pth'))
+    #         print("Load refined text embedding")
+
+    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
+    #         input, label = self.parse_batch_test(batch)
+
+    #         multi_crop = input.dim() == 5
+    #         if multi_crop:
+    #             bsz, k_crops = input.shape[0], input.shape[1]
+    #             input = input.view(bsz * k_crops, *input.shape[2:])
+
+    #         output = self.model_inference(input)
+    #         if len(output) >= 2:
+    #             if self.cfg.use_refined:
+    #                 output = output[1] + 0.05 * output[0]      #origin
+    #                 #output = output[0]
+    #             else:
+    #                 output = output[1]
+
+    #         if multi_crop:
+    #             output = output.view(bsz, k_crops, -1)
+    #             output = F.softmax(output, dim=-1).mean(dim=1)
+
+    #         self.label.append(label)
+    #         self.evaluator.process(output, label)
+
+    #     results = self.evaluator.evaluate()
+    
+    #     for k, v in results.items():
+    #         tag = f"{split}/{k}"
+    #         self.write_scalar(tag, v, self.epoch)
+    
+    #     return list(results.values())[0]
+
+
+    """Hàm test() cho transform tạo 3 CROP và 1 FULL - CHIA ĐỀU - CONFIDENCE"""
+    # @torch.no_grad()
+    # def test(self, split=None):
+    #     """A generic testing pipeline."""
+    #     self.model.image_features_store = []
+    #     self.set_model_mode("eval")
+    #     self.evaluator.reset()
+
+    #     if split is None:
+    #         split = self.cfg.TEST.SPLIT
+
+    #     if split == "val" and self.val_loader is not None:
+    #         data_loader = self.val_loader
+    #     elif split == "test":
+    #         split = "test"  # in case val_loader is None
+    #         data_loader = self.test_loader
+    #     else:
+    #         split = "train"
+    #         data_loader = self.train_loader_x
+
+    #     print(f"Evaluate on the *{split}* set")
+
+    #     if self.cfg.use_refined:
+    #         self.model.text_prototypes = torch.load(osp.join(self.output_dir, 'proto.pth'))
+    #         print("Load refined text embedding")
+
+    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
+    #         input, label = self.parse_batch_test(batch)
+
+    #         multi_crop = input.dim() == 5
+    #         if multi_crop:
+    #             bsz, k_crops = input.shape[0], input.shape[1]
+    #             input = input.view(bsz * k_crops, *input.shape[2:])
+
+    #         output = self.model_inference(input)
+    #         if len(output) >= 2:
+    #             if self.cfg.use_refined:
+    #                 output = output[1] + 0.05 * output[0]      #origin
+    #                 #output = output[0]
+    #             else:
+    #                 output = output[1]
+
+    #         if multi_crop:
+    #             output = output.view(bsz, k_crops, -1)
+    #             probs = F.softmax(output, dim=-1)
+    #             conf = probs.max(dim=-1, keepdim=True)[0]
+    #             weights = conf / conf.sum(dim=1, keepdim=True)
+    #             output = (output * weights).sum(dim=1)
+
+    #         self.label.append(label)
+    #         self.evaluator.process(output, label)
+
+    #     results = self.evaluator.evaluate()
+    
+    #     for k, v in results.items():
+    #         tag = f"{split}/{k}"
+    #         self.write_scalar(tag, v, self.epoch)
+    
+    #     return list(results.values())[0]
+
+
+    """Hàm test() cho transform tạo 3 CROP và 1 FULL - CHIA ĐỀU - MAX"""
+    # @torch.no_grad()
+    # def test(self, split=None):
+    #     """A generic testing pipeline."""
+    #     self.model.image_features_store = []
+    #     self.set_model_mode("eval")
+    #     self.evaluator.reset()
+
+    #     if split is None:
+    #         split = self.cfg.TEST.SPLIT
+
+    #     if split == "val" and self.val_loader is not None:
+    #         data_loader = self.val_loader
+    #     elif split == "test":
+    #         split = "test"  # in case val_loader is None
+    #         data_loader = self.test_loader
+    #     else:
+    #         split = "train"
+    #         data_loader = self.train_loader_x
+
+    #     print(f"Evaluate on the *{split}* set")
+
+    #     if self.cfg.use_refined:
+    #         self.model.text_prototypes = torch.load(osp.join(self.output_dir, 'proto.pth'))
+    #         print("Load refined text embedding")
+
+    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
+    #         input, label = self.parse_batch_test(batch)
+
+    #         multi_crop = input.dim() == 5
+    #         if multi_crop:
+    #             bsz, k_crops = input.shape[0], input.shape[1]
+    #             input = input.view(bsz * k_crops, *input.shape[2:])
+
+    #         output = self.model_inference(input)
+    #         if len(output) >= 2:
+    #             if self.cfg.use_refined:
+    #                 output = output[1] + 0.05 * output[0]      #origin
+    #                 #output = output[0]
+    #             else:
+    #                 output = output[1]
+
+    #         if multi_crop:
+    #             output = output.view(bsz, k_crops, -1)
+    #             output = output.max(dim=1)[0]
 
     #         self.label.append(label)
     #         self.evaluator.process(output, label)
@@ -1286,52 +1521,7 @@ class LocProto(TrainerX):
     #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
         
 
-    """Hàm test_ood() cho transform tạo 3 CROP - kết hợp dựa trên dự đoán lớn nhất MAX"""
-    @torch.no_grad()
-    def test_ood(self, data_loader, T):
-        """Test-time OOD detection pipeline."""
-        self.model.image_features_store = []
-        to_np = lambda x: x.data.cpu().numpy()
-        concat = lambda x: np.concatenate(x, axis=0)
-
-        self.set_model_mode("eval")
-        self.evaluator.reset()
-
-        glmcm_score = []
-        mcm_score = []
-        for batch_idx, batch in enumerate(tqdm(data_loader)):
-            (images, labels, *id_flag) = batch
-            if isinstance(images, str):
-                images, label = self.parse_batch_test(batch)
-            else:
-                images = images.cuda()
-            images = images.cuda()
-
-            multi_crop = images.dim() == 5
-            if multi_crop:
-                bsz, k_crops = images.shape[0], images.shape[1]
-                images = images.view(bsz * k_crops, *images.shape[2:])
-
-            output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
-            if self.cfg.use_refined:
-                output = output_local + 0.05 * output
-                
-            output /= 100.0
-            output_local /= 100.0
-
-            if multi_crop:
-                output = output.view(bsz, k_crops, -1).max(dim=1)[0]    # (B, C)
-
-            smax_global = F.softmax(output / T, dim=-1)
-            smax_global = to_np(smax_global)
-            mcm_global_score = -np.max(smax_global, axis=1)
-            mcm_score.append(mcm_global_score)
-
-        return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
-
-
-
-    """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên LOGITS"""
+    """Hàm test_ood() cho transform tạo 3 CROP - kết hợp dựa trên dự đoán lớn nhất MAX -- XONG """
     # @torch.no_grad()
     # def test_ood(self, data_loader, T):
     #     """Test-time OOD detection pipeline."""
@@ -1360,14 +1550,12 @@ class LocProto(TrainerX):
     #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
     #         if self.cfg.use_refined:
     #             output = output_local + 0.05 * output
-    #         else:
-    #             output = output_local
+                
     #         output /= 100.0
     #         output_local /= 100.0
 
     #         if multi_crop:
-    #             output = output.view(bsz, k_crops, -1)
-    #             output = 0.7 * output[:, :3, :].mean(dim=1) + 0.3 * output[:, 3, :]   # combine trên logits thô
+    #             output = output.view(bsz, k_crops, -1).max(dim=1)[0]    # (B, C)
 
     #         smax_global = F.softmax(output / T, dim=-1)
     #         smax_global = to_np(smax_global)
@@ -1375,6 +1563,53 @@ class LocProto(TrainerX):
     #         mcm_score.append(mcm_global_score)
 
     #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
+
+
+
+    """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên LOGITS"""
+    @torch.no_grad()
+    def test_ood(self, data_loader, T):
+        """Test-time OOD detection pipeline."""
+        self.model.image_features_store = []
+        to_np = lambda x: x.data.cpu().numpy()
+        concat = lambda x: np.concatenate(x, axis=0)
+
+        self.set_model_mode("eval")
+        self.evaluator.reset()
+
+        glmcm_score = []
+        mcm_score = []
+        for batch_idx, batch in enumerate(tqdm(data_loader)):
+            (images, labels, *id_flag) = batch
+            if isinstance(images, str):
+                images, label = self.parse_batch_test(batch)
+            else:
+                images = images.cuda()
+            images = images.cuda()
+
+            multi_crop = images.dim() == 5
+            if multi_crop:
+                bsz, k_crops = images.shape[0], images.shape[1]
+                images = images.view(bsz * k_crops, *images.shape[2:])
+
+            output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
+            if self.cfg.use_refined:
+                output = output_local + 0.05 * output
+            else:
+                output = output_local
+            output /= 100.0
+            output_local /= 100.0
+
+            if multi_crop:
+                output = output.view(bsz, k_crops, -1)
+                output = 0.7 * output[:, :3, :].mean(dim=1) + 0.3 * output[:, 3, :]   # combine trên logits thô
+
+            smax_global = F.softmax(output / T, dim=-1)
+            smax_global = to_np(smax_global)
+            mcm_global_score = -np.max(smax_global, axis=1)
+            mcm_score.append(mcm_global_score)
+
+        return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
         
 
     """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên SOFTMAX  -- XONG """
@@ -1518,6 +1753,193 @@ class LocProto(TrainerX):
 
     #             crop3_max = crop3_logits.max(dim=1)[0]                    # (B, C)
     #             output = 0.7 * crop3_max + 0.3 * full_view
+
+    #         smax_global = F.softmax(output / T, dim=-1)
+    #         smax_global = to_np(smax_global)
+    #         mcm_global_score = -np.max(smax_global, axis=1)
+    #         mcm_score.append(mcm_global_score)
+
+    #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
+
+
+    """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - CHIA ĐỀU - LOGITS"""
+    # @torch.no_grad()
+    # def test_ood(self, data_loader, T):
+    #     """Test-time OOD detection pipeline."""
+    #     self.model.image_features_store = []
+    #     to_np = lambda x: x.data.cpu().numpy()
+    #     concat = lambda x: np.concatenate(x, axis=0)
+
+    #     self.set_model_mode("eval")
+    #     self.evaluator.reset()
+
+    #     glmcm_score = []
+    #     mcm_score = []
+    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
+    #         (images, labels, *id_flag) = batch
+    #         if isinstance(images, str):
+    #             images, label = self.parse_batch_test(batch)
+    #         else:
+    #             images = images.cuda()
+    #         images = images.cuda()
+
+    #         multi_crop = images.dim() == 5
+    #         if multi_crop:
+    #             bsz, k_crops = images.shape[0], images.shape[1]
+    #             images = images.view(bsz * k_crops, *images.shape[2:])
+
+    #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
+    #         if self.cfg.use_refined:
+    #             output = output_local + 0.05 * output
+    #         else:
+    #             output = output_local
+    #         output /= 100.0
+    #         output_local /= 100.0
+
+    #         if multi_crop:
+    #             output = output.view(bsz, k_crops, -1)
+    #             output = output.mean(dim=1)   # trung bình đều trên logits thô, qua cả 4 view
+
+    #         smax_global = F.softmax(output / T, dim=-1)
+    #         smax_global = to_np(smax_global)
+    #         mcm_global_score = -np.max(smax_global, axis=1)
+    #         mcm_score.append(mcm_global_score)
+
+    #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
+
+
+    """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - CHIA ĐỀU - SOFTMAX"""
+    # @torch.no_grad()
+    # def test_ood(self, data_loader, T):
+    #     """Test-time OOD detection pipeline."""
+    #     self.model.image_features_store = []
+    #     to_np = lambda x: x.data.cpu().numpy()
+    #     concat = lambda x: np.concatenate(x, axis=0)
+
+    #     self.set_model_mode("eval")
+    #     self.evaluator.reset()
+
+    #     glmcm_score = []
+    #     mcm_score = []
+    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
+    #         (images, labels, *id_flag) = batch
+    #         if isinstance(images, str):
+    #             images, label = self.parse_batch_test(batch)
+    #         else:
+    #             images = images.cuda()
+    #         images = images.cuda()
+
+    #         multi_crop = images.dim() == 5
+    #         if multi_crop:
+    #             bsz, k_crops = images.shape[0], images.shape[1]
+    #             images = images.view(bsz * k_crops, *images.shape[2:])
+
+    #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
+    #         if self.cfg.use_refined:
+    #             output = output_local + 0.05 * output
+    #         else:
+    #             output = output_local
+    #         output /= 100.0
+    #         output_local /= 100.0
+
+    #         smax_global = F.softmax(output / T, dim=-1)
+    #         if multi_crop:
+    #             smax_global = smax_global.view(bsz, k_crops, -1)
+    #             smax_global = smax_global.mean(dim=1)   # trung bình đều trên probs, qua cả 4 view
+
+    #         smax_global = to_np(smax_global)
+    #         mcm_global_score = -np.max(smax_global, axis=1)
+    #         mcm_score.append(mcm_global_score)
+
+    #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
+
+
+    """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - CHIA ĐỀU - CONFIDENCE"""
+    # @torch.no_grad()
+    # def test_ood(self, data_loader, T):
+    #     """Test-time OOD detection pipeline."""
+    #     self.model.image_features_store = []
+    #     to_np = lambda x: x.data.cpu().numpy()
+    #     concat = lambda x: np.concatenate(x, axis=0)
+
+    #     self.set_model_mode("eval")
+    #     self.evaluator.reset()
+
+    #     glmcm_score = []
+    #     mcm_score = []
+    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
+    #         (images, labels, *id_flag) = batch
+    #         if isinstance(images, str):
+    #             images, label = self.parse_batch_test(batch)
+    #         else:
+    #             images = images.cuda()
+    #         images = images.cuda()
+
+    #         multi_crop = images.dim() == 5
+    #         if multi_crop:
+    #             bsz, k_crops = images.shape[0], images.shape[1]
+    #             images = images.view(bsz * k_crops, *images.shape[2:])
+
+    #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
+    #         if self.cfg.use_refined:
+    #             output = output_local + 0.05 * output
+    #         else:
+    #             output = output_local
+    #         output /= 100.0
+    #         output_local /= 100.0
+
+    #         if multi_crop:
+    #             output = output.view(bsz, k_crops, -1)               # (B, 4, C)
+    #             probs = F.softmax(output / T, dim=-1)
+    #             conf = probs.max(dim=-1, keepdim=True)[0]              # (B, 4, 1)
+    #             weights = conf / conf.sum(dim=1, keepdim=True)          # tổng=1 qua cả 4 view
+    #             output = (output * weights).sum(dim=1)                   # weighted trên logits thô
+
+    #         smax_global = F.softmax(output / T, dim=-1)
+    #         smax_global = to_np(smax_global)
+    #         mcm_global_score = -np.max(smax_global, axis=1)
+    #         mcm_score.append(mcm_global_score)
+
+    #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
+
+
+    """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - CHIA ĐỀU - MAX"""
+    # @torch.no_grad()
+    # def test_ood(self, data_loader, T):
+    #     """Test-time OOD detection pipeline."""
+    #     self.model.image_features_store = []
+    #     to_np = lambda x: x.data.cpu().numpy()
+    #     concat = lambda x: np.concatenate(x, axis=0)
+
+    #     self.set_model_mode("eval")
+    #     self.evaluator.reset()
+
+    #     glmcm_score = []
+    #     mcm_score = []
+    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
+    #         (images, labels, *id_flag) = batch
+    #         if isinstance(images, str):
+    #             images, label = self.parse_batch_test(batch)
+    #         else:
+    #             images = images.cuda()
+    #         images = images.cuda()
+
+    #         multi_crop = images.dim() == 5
+    #         if multi_crop:
+    #             bsz, k_crops = images.shape[0], images.shape[1]
+    #             images = images.view(bsz * k_crops, *images.shape[2:])
+
+    #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
+    #         if self.cfg.use_refined:
+    #             output = output_local + 0.05 * output
+    #         else:
+    #             output = output_local
+    #         output /= 100.0
+    #         output_local /= 100.0
+
+    #         if multi_crop:
+    #             output = output.view(bsz, k_crops, -1)
+    #             output = output.max(dim=1)[0]   # max qua cả 4 view, trên logits thô
 
     #         smax_global = F.softmax(output / T, dim=-1)
     #         smax_global = to_np(smax_global)
