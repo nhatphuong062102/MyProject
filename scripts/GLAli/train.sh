@@ -30,9 +30,9 @@ kalign=10
 
 for SEED in 1
 do
-    for SHOTS in 16
+    for SHOTS in 24
     do
-        DIR=output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/4crop_conf_BTXRD15b
+        DIR=output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/center_BTXRD15b
         # if [ -d "$DIR" ]; the6
         #     echo "Oops! The results exist at ${DIR} (so skip this job)"
         # else

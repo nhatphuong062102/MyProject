@@ -21,7 +21,7 @@ kalign=10
 # SEED=2
 for DATASET in ${1:-BTXRD}  # eurosat fgvc_aircraft stanford_cars skin40 ISIC
 do
-    for SHOTS in 16
+    for SHOTS in 24
     do
         for SEED in 1
         do
@@ -31,8 +31,8 @@ do
             --trainer ${TRAINER} \
             --dataset-config-file configs/datasets/${DATASET}.yaml \
             --seed ${SEED} \
-            --output-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/4crop_conf_BTXRD15b \
-            --model-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/4crop_conf_BTXRD15b \
+            --output-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/center_BTXRD15b \
+            --model-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/center_BTXRD15b \
             --load-epoch 75 \
             --config-file configs/trainers/${TRAINER}/${CFG}.yaml \
             --T ${T} \
