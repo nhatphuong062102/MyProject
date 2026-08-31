@@ -1346,18 +1346,16 @@ class LocProto(TrainerX):
 
     """===================== TEST OOD ====== START ========================="""
 
-    """ Hàm test_ood() cho transform CENTER-CROP và RESIZE thẳng dùng ENERGY SCORE """
+    """ Hàm test_ood() cho transform CENTER-CROP và RESIZE thẳng dùng ENTROPY SCORE """
     @torch.no_grad()
     def test_ood(self, data_loader, T):
         """Test-time OOD detection pipeline."""
         self.model.image_features_store = []
         to_np = lambda x: x.data.cpu().numpy()
         concat = lambda x: np.concatenate(x, axis=0)
-
         self.set_model_mode("eval")
         self.evaluator.reset()
-
-        energy_score = []
+        entropy_score = []
         for batch_idx, batch in enumerate(tqdm(data_loader)):
             (images, labels, *id_flag) = batch
             if isinstance(images, str):
@@ -1372,11 +1370,46 @@ class LocProto(TrainerX):
                 output = output_local
             output /= 100.0
             output_local /= 100.0
-            # Energy score: E(x) = -T * logsumexp(u_c / T)
-            energy_batch = -T * to_np(torch.logsumexp(output / T, dim=-1))
-            energy_score.append(energy_batch)
+            smax_global = to_np(F.softmax(output/T, dim=-1))
+            # Predictive entropy: H(p) = -sum(p * log(p))
+            # H cao -> phân phối đều giữa các lớp -> khả năng OOD cao
+            # H thấp -> mô hình tự tin vào 1 lớp -> khả năng ID cao
+            entropy_batch = -np.sum(smax_global * np.log(smax_global + 1e-12), axis=1)
+            entropy_score.append(entropy_batch)
+        return concat(entropy_score)[:len(data_loader.dataset)].copy(), concat(entropy_score)[:len(data_loader.dataset)].copy(), concat(entropy_score)[:len(data_loader.dataset)].copy(), concat(entropy_score)[:len(data_loader.dataset)].copy()
 
-        return concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy()
+
+    """ Hàm test_ood() cho transform CENTER-CROP và RESIZE thẳng dùng ENERGY SCORE """
+    # @torch.no_grad()
+    # def test_ood(self, data_loader, T):
+    #     """Test-time OOD detection pipeline."""
+    #     self.model.image_features_store = []
+    #     to_np = lambda x: x.data.cpu().numpy()
+    #     concat = lambda x: np.concatenate(x, axis=0)
+
+    #     self.set_model_mode("eval")
+    #     self.evaluator.reset()
+
+    #     energy_score = []
+    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
+    #         (images, labels, *id_flag) = batch
+    #         if isinstance(images, str):
+    #             images, label = self.parse_batch_test(batch)
+    #         else:
+    #             images = images.cuda()
+    #         images = images.cuda()
+    #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
+    #         if self.cfg.use_refined:
+    #             output = output_local + 0.05 * output
+    #         else:
+    #             output = output_local
+    #         output /= 100.0
+    #         output_local /= 100.0
+    #         # Energy score: E(x) = -T * logsumexp(u_c / T)
+    #         energy_batch = -T * to_np(torch.logsumexp(output / T, dim=-1))
+    #         energy_score.append(energy_batch)
+
+    #     return concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy()
 
 
     """Hàm test_ood() cho transform CENTER-CROP và RESIZE thẳng về 224 x 224  -- XONG """
