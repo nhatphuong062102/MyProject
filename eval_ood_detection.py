@@ -170,21 +170,33 @@ def main(args):
 
     """============== MCM score === START =============="""
 
-    trainer.test()
-    in_score_mcm, in_score_gl, in_score_loc, in_score_gen = trainer.test_ood(id_data_loader, args.T)
+    # trainer.test()
+    # in_score_mcm, in_score_gl, in_score_loc, in_score_gen = trainer.test_ood(id_data_loader, args.T)
 
-    auroc_list_mcm, aupr_list_mcm, fpr_list_mcm = [], [], []
-    auroc_list_gl, aupr_list_gl, fpr_list_gl = [], [], []
-    auroc_list_loc, aupr_list_loc, fpr_list_loc = [], [], []
-    auroc_list_gen, aupr_list_gen, fpr_list_gen = [], [], []
+    # auroc_list_mcm, aupr_list_mcm, fpr_list_mcm = [], [], []
+    # auroc_list_gl, aupr_list_gl, fpr_list_gl = [], [], []
+    # auroc_list_loc, aupr_list_loc, fpr_list_loc = [], [], []
+    # auroc_list_gen, aupr_list_gen, fpr_list_gen = [], [], []
     
 
+    # # for out_dataset in out_datasets:
+    # #     print(f"Evaluting OOD dataset {out_dataset}")
+    # #     if out_dataset in ['iNaturalist', 'SUN', 'places365', 'Texture', 'skin40', 'ISIC', 'Dermnet']:
+    # #         ood_loader = set_ood_loader_ImageNet(args, out_dataset, preprocess)
+    # #     elif out_dataset in ['eurosat', 'fgvc_aircraft', 'stanford_cars', 'skin40', 'oxford_flowers', 'food101', 'ISIC', 'Dermnet']:
+    # #         ood_loader = trainer.dm.ood_loader
+
+    # #     out_score_mcm, out_score_gl, out_score_loc, out_score_gen = trainer.test_ood(ood_loader, args.T)
+
+    # #     print("MCM score")
+    # #     get_and_print_results(args, in_score_mcm, out_score_mcm,
+    # #                           auroc_list_mcm, aupr_list_mcm, fpr_list_mcm)
+        
     # for out_dataset in out_datasets:
-    #     print(f"Evaluting OOD dataset {out_dataset}")
-    #     if out_dataset in ['iNaturalist', 'SUN', 'places365', 'Texture', 'skin40', 'ISIC', 'Dermnet']:
-    #         ood_loader = set_ood_loader_ImageNet(args, out_dataset, preprocess)
-    #     elif out_dataset in ['eurosat', 'fgvc_aircraft', 'stanford_cars', 'skin40', 'oxford_flowers', 'food101', 'ISIC', 'Dermnet']:
+    #     if out_dataset == args.in_dataset:
     #         ood_loader = trainer.dm.ood_loader
+    #     else:
+    #         ood_loader = set_ood_loader_ImageNet(args, out_dataset, preprocess)
 
     #     out_score_mcm, out_score_gl, out_score_loc, out_score_gen = trainer.test_ood(ood_loader, args.T)
 
@@ -192,40 +204,28 @@ def main(args):
     #     get_and_print_results(args, in_score_mcm, out_score_mcm,
     #                           auroc_list_mcm, aupr_list_mcm, fpr_list_mcm)
         
-    for out_dataset in out_datasets:
-        if out_dataset == args.in_dataset:
-            ood_loader = trainer.dm.ood_loader
-        else:
-            ood_loader = set_ood_loader_ImageNet(args, out_dataset, preprocess)
-
-        out_score_mcm, out_score_gl, out_score_loc, out_score_gen = trainer.test_ood(ood_loader, args.T)
-
-        print("MCM score")
-        get_and_print_results(args, in_score_mcm, out_score_mcm,
-                              auroc_list_mcm, aupr_list_mcm, fpr_list_mcm)
-        
-    if len(out_datasets) > 1:
-        print("MCM avg. FPR:{}, AUROC:{}, AUPR:{}".format(np.mean(fpr_list_mcm), np.mean(auroc_list_mcm), np.mean(aupr_list_mcm)))
+    # if len(out_datasets) > 1:
+    #     print("MCM avg. FPR:{}, AUROC:{}, AUPR:{}".format(np.mean(fpr_list_mcm), np.mean(auroc_list_mcm), np.mean(aupr_list_mcm)))
 
     """============== MCM score === END ================"""
 
 
     """============== ENERGY score === START =============="""
-    # trainer.test()
-    # in_score_energy, _, _, _ = trainer.test_ood(id_data_loader, args.T)
-    # auroc_list_energy, aupr_list_energy, fpr_list_energy = [], [], []
-    # for out_dataset in out_datasets:
-    #     if out_dataset == args.in_dataset:
-    #         ood_loader = trainer.dm.ood_loader
-    #     else:
-    #         ood_loader = set_ood_loader_ImageNet(args, out_dataset, preprocess)
-    #     out_score_energy, _, _, _ = trainer.test_ood(ood_loader, args.T)
-    #     print("Energy score")
-    #     get_and_print_results(args, in_score_energy, out_score_energy,
-    #                         auroc_list_energy, aupr_list_energy, fpr_list_energy)
+    trainer.test()
+    in_score_energy, _, _, _ = trainer.test_ood(id_data_loader, args.T)
+    auroc_list_energy, aupr_list_energy, fpr_list_energy = [], [], []
+    for out_dataset in out_datasets:
+        if out_dataset == args.in_dataset:
+            ood_loader = trainer.dm.ood_loader
+        else:
+            ood_loader = set_ood_loader_ImageNet(args, out_dataset, preprocess)
+        out_score_energy, _, _, _ = trainer.test_ood(ood_loader, args.T)
+        print("Energy score")
+        get_and_print_results(args, in_score_energy, out_score_energy,
+                            auroc_list_energy, aupr_list_energy, fpr_list_energy)
             
-    # if len(out_datasets) > 1:
-    #     print("Energy avg. FPR:{}, AUROC:{}, AUPR:{}".format(np.mean(fpr_list_energy), np.mean(auroc_list_energy), np.mean(aupr_list_energy)))
+    if len(out_datasets) > 1:
+        print("Energy avg. FPR:{}, AUROC:{}, AUPR:{}".format(np.mean(fpr_list_energy), np.mean(auroc_list_energy), np.mean(aupr_list_energy)))
 
     """============== ENERGY score === END =============="""
 

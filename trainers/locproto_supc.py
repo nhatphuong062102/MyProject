@@ -1347,39 +1347,6 @@ class LocProto(TrainerX):
     """===================== TEST OOD ====== START ========================="""
 
     """ Hàm test_ood() cho transform CENTER-CROP và RESIZE thẳng dùng ENERGY SCORE """
-    # @torch.no_grad()
-    # def test_ood(self, data_loader, T):
-    #     """Test-time OOD detection pipeline."""
-    #     self.model.image_features_store = []
-    #     to_np = lambda x: x.data.cpu().numpy()
-    #     concat = lambda x: np.concatenate(x, axis=0)
-
-    #     self.set_model_mode("eval")
-    #     self.evaluator.reset()
-
-    #     energy_score = []
-    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
-    #         (images, labels, *id_flag) = batch
-    #         if isinstance(images, str):
-    #             images, label = self.parse_batch_test(batch)
-    #         else:
-    #             images = images.cuda()
-    #         images = images.cuda()
-    #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
-    #         if self.cfg.use_refined:
-    #             output = output_local + 0.05 * output
-    #         else:
-    #             output = output_local
-    #         output /= 100.0
-    #         output_local /= 100.0
-    #         # Energy score: E(x) = -T * logsumexp(u_c / T)
-    #         energy_batch = -T * to_np(torch.logsumexp(output / T, dim=-1))
-    #         energy_score.append(energy_batch)
-
-    #     return concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy()
-
-
-    """Hàm test_ood() cho transform CENTER-CROP và RESIZE thẳng về 224 x 224  -- XONG """
     @torch.no_grad()
     def test_ood(self, data_loader, T):
         """Test-time OOD detection pipeline."""
@@ -1390,8 +1357,7 @@ class LocProto(TrainerX):
         self.set_model_mode("eval")
         self.evaluator.reset()
 
-        glmcm_score = []
-        mcm_score = []
+        energy_score = []
         for batch_idx, batch in enumerate(tqdm(data_loader)):
             (images, labels, *id_flag) = batch
             if isinstance(images, str):
@@ -1406,12 +1372,46 @@ class LocProto(TrainerX):
                 output = output_local
             output /= 100.0
             output_local /= 100.0
-            smax_global = to_np(F.softmax(output/T, dim=-1))  
-            smax_local = to_np(F.softmax(output_local/T, dim=-1))
-            mcm_global_score = -np.max(smax_global, axis=1)
-            mcm_score.append(mcm_global_score)
+            # Energy score: E(x) = -T * logsumexp(u_c / T)
+            energy_batch = -T * to_np(torch.logsumexp(output / T, dim=-1))
+            energy_score.append(energy_batch)
 
-        return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
+        return concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy()
+
+
+    """Hàm test_ood() cho transform CENTER-CROP và RESIZE thẳng về 224 x 224  -- XONG """
+    # @torch.no_grad()
+    # def test_ood(self, data_loader, T):
+    #     """Test-time OOD detection pipeline."""
+    #     self.model.image_features_store = []
+    #     to_np = lambda x: x.data.cpu().numpy()
+    #     concat = lambda x: np.concatenate(x, axis=0)
+
+    #     self.set_model_mode("eval")
+    #     self.evaluator.reset()
+
+    #     glmcm_score = []
+    #     mcm_score = []
+    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
+    #         (images, labels, *id_flag) = batch
+    #         if isinstance(images, str):
+    #             images, label = self.parse_batch_test(batch)
+    #         else:
+    #             images = images.cuda()
+    #         images = images.cuda()
+    #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
+    #         if self.cfg.use_refined:
+    #             output = output_local + 0.05 * output
+    #         else:
+    #             output = output_local
+    #         output /= 100.0
+    #         output_local /= 100.0
+    #         smax_global = to_np(F.softmax(output/T, dim=-1))  
+    #         smax_local = to_np(F.softmax(output_local/T, dim=-1))
+    #         mcm_global_score = -np.max(smax_global, axis=1)
+    #         mcm_score.append(mcm_global_score)
+
+    #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
 
 
 
