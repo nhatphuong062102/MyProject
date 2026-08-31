@@ -21,7 +21,7 @@ kalign=10
 # SEED=2
 for DATASET in ${1:-BTXRD}  # eurosat fgvc_aircraft stanford_cars skin40 ISIC
 do
-    for SHOTS in 24
+    for SHOTS in 32
     do
         for SEED in 1
         do
