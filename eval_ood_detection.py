@@ -231,23 +231,43 @@ def main(args):
 
 
     """============== ENTROPY score === START =============="""
+    # trainer.test()
+    # in_score_entropy, _, _, _ = trainer.test_ood(id_data_loader, args.T)
+    # auroc_list_entropy, aupr_list_entropy, fpr_list_entropy = [], [], []
+    # for out_dataset in out_datasets:
+    #         if out_dataset == args.in_dataset:
+    #             ood_loader = trainer.dm.ood_loader
+    #         else:
+    #             ood_loader = set_ood_loader_ImageNet(args, out_dataset, preprocess)
+    #         out_score_entropy, _, _, _ = trainer.test_ood(ood_loader, args.T)
+    #         print("Entropy score")
+    #         get_and_print_results(args, in_score_entropy, out_score_entropy,
+    #                             auroc_list_entropy, aupr_list_entropy, fpr_list_entropy)
+            
+    # if len(out_datasets) > 1:
+    #     print("Entropy avg. FPR:{}, AUROC:{}, AUPR:{}".format(np.mean(fpr_list_entropy), np.mean(auroc_list_entropy), np.mean(aupr_list_entropy)))
+
+    """============== ENTROPY score === END =============="""
+
+
+    """============== GEN score === START =============="""
     trainer.test()
-    in_score_entropy, _, _, _ = trainer.test_ood(id_data_loader, args.T)
-    auroc_list_entropy, aupr_list_entropy, fpr_list_entropy = [], [], []
+    in_score_gen, _, _, _ = trainer.test_ood(id_data_loader, args.T)
+    auroc_list_gen, aupr_list_gen, fpr_list_gen = [], [], []
     for out_dataset in out_datasets:
             if out_dataset == args.in_dataset:
                 ood_loader = trainer.dm.ood_loader
             else:
                 ood_loader = set_ood_loader_ImageNet(args, out_dataset, preprocess)
-            out_score_entropy, _, _, _ = trainer.test_ood(ood_loader, args.T)
-            print("Entropy score")
-            get_and_print_results(args, in_score_entropy, out_score_entropy,
-                                auroc_list_entropy, aupr_list_entropy, fpr_list_entropy)
+            out_score_gen, _, _, _ = trainer.test_ood(ood_loader, args.T)
+            print("GEN score")
+            get_and_print_results(args, in_score_gen, out_score_gen,
+                                auroc_list_gen, aupr_list_gen, fpr_list_gen)
             
     if len(out_datasets) > 1:
-        print("Entropy avg. FPR:{}, AUROC:{}, AUPR:{}".format(np.mean(fpr_list_entropy), np.mean(auroc_list_entropy), np.mean(aupr_list_entropy)))
+        print("GEN avg. FPR:{}, AUROC:{}, AUPR:{}".format(np.mean(fpr_list_gen), np.mean(auroc_list_gen), np.mean(aupr_list_gen)))
 
-    """============== ENTROPY score === END =============="""
+    """============== GEN score === END =============="""
 
     return
 
