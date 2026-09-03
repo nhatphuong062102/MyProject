@@ -101,7 +101,9 @@ def get_description_aware_alignment(image_features, local_image_features, all_te
     return:
     uc : [bs, C]  alignment score
     """
-    print("get_description_aware_alignment()")
+    if not hasattr(get_description_aware_alignment, "_printed"):
+        print("get_description_aware_alignment()")
+        get_description_aware_alignment._printed = True
 
     n_desc, n_cls, d = all_text_features.shape
 
@@ -139,7 +141,9 @@ def get_description_aware_alignment_v1(image_features, local_image_features, all
     return:
     uc : [bs, C]  alignment score
     """
-    print("get_description_aware_alignment_v1()")
+    if not hasattr(get_description_aware_alignment, "_printed"):
+        print("get_description_aware_alignment_v1()")
+        get_description_aware_alignment._printed = True
 
     n_desc, n_cls, d = all_text_features.shape
 
@@ -182,7 +186,9 @@ def get_description_aware_alignment_v2(image_features, local_image_features, all
     return:
     logits : [bs, C]  = base_logits + uc
     """
-    print("get_description_aware_alignment_v2()")
+    if not hasattr(get_description_aware_alignment, "_printed"):
+        print("get_description_aware_alignment_v2()")
+        get_description_aware_alignment._printed = True
 
     n_disc, n_cls, d = all_text_features.shape
 
@@ -225,7 +231,9 @@ def get_description_aware_alignment_v3(image_features, local_image_features, all
     return:
     logits : [bs, C]  = base_logits + uc
     """
-    print("get_description_aware_alignment_v3()")
+    if not hasattr(get_description_aware_alignment, "_printed"):
+        print("get_description_aware_alignment_v3()")
+        get_description_aware_alignment._printed = True
 
     n_disc, n_cls, d = all_text_features.shape
 
