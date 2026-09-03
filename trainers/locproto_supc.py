@@ -101,6 +101,8 @@ def get_description_aware_alignment(image_features, local_image_features, all_te
     return:
     uc : [bs, C]  alignment score
     """
+    print("get_description_aware_alignment()")
+
     n_desc, n_cls, d = all_text_features.shape
 
     # Eq.1-2
@@ -123,10 +125,53 @@ def get_description_aware_alignment(image_features, local_image_features, all_te
     return uc
 
 
+def get_description_aware_alignment_v1(image_features, local_image_features, all_text_features, mean_text_features, kalign=10):
+    """
+    beta tinh theo t_{c,0},
+    DUNG base_logits.
+
+    image_features        : [bs, d]         Global image embeddings
+    local_image_features  : [bs, N, d]      Zlocal - local image embeddings
+    all_text_features     : [n_disc, C, d]  Tc - refined text embeddings, index 0 = t_{c,0}
+    mean_text_features    : [C, d]          Text embeddings trung binh cua tung class
+    kalign                : so vung anh cuc bo top-k cho moi description, mac dinh kalign = 10
+
+    return:
+    uc : [bs, C]  alignment score
+    """
+    print("get_description_aware_alignment_v1()")
+
+    n_desc, n_cls, d = all_text_features.shape
+
+    # base_logits: global image feature vs mean text feature
+    base_logits = image_features @ mean_text_features.T                   # [bs, C]
+
+    # Eq.1-2
+    sim = torch.einsum('bnd,icd->bcin', local_image_features, all_text_features)   # [bs,C,n_disc,N]
+    N = sim.shape[-1]
+    assert kalign <= N, (
+        f"kalign ({kalign}) must be less than or equal to the number of local image regions N ({N})."
+    )
+    topk_sim, _ = sim.topk(dim=-1, k=kalign)                                       # [bs,C,n_disc,kalign]
+    l_ci = topk_sim.mean(dim=-1)                                                   # [bs,C,n_disc]
+
+    # Eq.3: beta_i = softmax_i h(t_{c,i}, t_{c,0})
+    label_desc = all_text_features[0:1]                                            # [1, C, d]
+    sim_desc = (all_text_features * label_desc).sum(dim=-1)                        # [n_disc, C]
+    beta = F.softmax(sim_desc, dim=0)
+
+    # Eq.4
+    beta_b = beta.transpose(0, 1).unsqueeze(0)                                  # [1, C, n_disc]
+    uc = (l_ci * beta_b).sum(dim=-1)                                            # [bs, C]
+
+    logits = base_logits + uc
+    return logits
+
+
 def get_description_aware_alignment_v2(image_features, local_image_features, all_text_features, mean_text_features, kalign=10):
     """
     beta tinh theo mean_text_features 
-    CO base_logits
+    DUNG base_logits
 
     image_features        : [bs, d]        global image embedding
     local_image_features  : [bs, N, d]     Zlocal - local image embeddings
@@ -137,6 +182,8 @@ def get_description_aware_alignment_v2(image_features, local_image_features, all
     return:
     logits : [bs, C]  = base_logits + uc
     """
+    print("get_description_aware_alignment_v2()")
+
     n_disc, n_cls, d = all_text_features.shape
 
     # base_logits: global image feature vs mean text feature
@@ -162,6 +209,45 @@ def get_description_aware_alignment_v2(image_features, local_image_features, all
 
     logits = base_logits + uc
     return logits
+
+
+def get_description_aware_alignment_v3(image_features, local_image_features, all_text_features, mean_text_features, kalign=10):
+    """
+    beta tinh theo mean_text_features 
+    KHONG base_logits
+
+    image_features        : [bs, d]        global image embedding
+    local_image_features  : [bs, N, d]     Zlocal - local image embeddings
+    all_text_features     : [n_disc, C, d] Tc - refined text embeddings
+    mean_text_features    : [C, d]         Text embedding trung binh cua tung class
+    kalign                : so vung anh cuc bo top-k duoc chon cho moi description, mac dinh kalign = 10
+
+    return:
+    logits : [bs, C]  = base_logits + uc
+    """
+    print("get_description_aware_alignment_v3()")
+
+    n_disc, n_cls, d = all_text_features.shape
+
+    # Eq.1-2: local alignment (khong doi so voi ban truoc)
+    sim = torch.einsum('bnd,icd->bcin', local_image_features, all_text_features)  # [bs,C,n_disc,N]
+    N = sim.shape[-1]
+    assert kalign <= N, (
+        f"kalign ({kalign}) must be less than or equal to the number of local image regions N ({N})."
+    )
+    topk_sim, _ = sim.topk(dim=-1, k=kalign)                                      # [bs,C,n_disc,kalign]
+    l_ci = topk_sim.mean(dim=-1)                                                  # [bs,C,n_disc]
+
+    # Eq.3 (bien the): beta_i = softmax_i h(t_{c,i}, mean_text_c)
+    mean_text_expand = mean_text_features.unsqueeze(0)                     # [1, C, d]
+    sim_desc = (all_text_features * mean_text_expand).sum(dim=-1)          # [n_disc, C]  cosine vi da normalize
+    beta = F.softmax(sim_desc, dim=0)                                      # softmax theo truc n_disc
+
+   # Eq.4
+    beta_b = beta.transpose(0, 1).unsqueeze(0)                             # [1, C, n_disc]
+    uc = (l_ci * beta_b).sum(dim=-1)                                       # [bs, C]
+
+    return uc
 
 
 def get_supc_loss(g_img_feats, id_loc_feats, ood_loc_feats, text_stu, text_tea, label, n_class=99, topk=50):
@@ -401,8 +487,8 @@ class CustomCLIP(nn.Module):
 
         logit_scale = self.logit_scale.exp()
 
-        logits = logit_scale * get_description_aware_alignment_v2(image_features.detach(), local_image_features.detach(), updated_proto_norm, updated_proto_mean_norm, kalign=self.cfg.kalign)
-        logits_local = logit_scale * get_description_aware_alignment_v2(image_features, local_image_features, self.all_text_features_tea.detach(), self.text_features_tea.detach(), kalign=self.cfg.kalign)
+        logits = logit_scale * get_description_aware_alignment(image_features.detach(), local_image_features.detach(), updated_proto_norm, updated_proto_mean_norm, kalign=self.cfg.kalign)
+        logits_local = logit_scale * get_description_aware_alignment(image_features, local_image_features, self.all_text_features_tea.detach(), self.text_features_tea.detach(), kalign=self.cfg.kalign)
 
         return logits, logits_local, image_features_tea, image_features, updated_proto_norm, id_loc_feats, ood_loc_feats, l2p, l2p_tea
 
