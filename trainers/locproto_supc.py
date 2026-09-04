@@ -612,10 +612,13 @@ class LocProto(TrainerX):
             self.model_backward_and_update(loss)
 
         # output_ens = output_local + 0.05 * output   # gốc
-        output_ens = output
-        # output_ens =
-        # output_ens =
-        # output_ens =
+        # output_ens = output
+        # output_ens = output_local
+        # output_ens = output_local + 0.1 * output
+        output_ens = output_local + 0.15 * output
+        # output_ens = output_local + 0.2 * output
+        # output_ens = output_local + 0.3 * output
+        # output_ens = output_local + 0.5 * output
 
         loss_summary = {
             "loss": loss.item(),
@@ -708,10 +711,13 @@ class LocProto(TrainerX):
             if len(output) >= 2:
                 if self.cfg.use_refined:
                     # output = output[1] + 0.05 * output[0]
-                    output = output[0]
-                    # output =
-                    # output =
-                    # output =
+                    # output = output[0]
+                    # output = output[1]
+                    # output = output[1] + 0.1 * output[0]
+                    output = output[1] + 0.15 * output[0]
+                    # output = output[1] + 0.2 * output[0]
+                    # output = output[1] + 0.3 * output[0]
+                    # output = output[1] + 0.5 * output[0]
                 else:
                     output = output[1]
             self.label.append(label)
@@ -1472,10 +1478,13 @@ class LocProto(TrainerX):
             output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
             if self.cfg.use_refined:
                 # output = output_local + 0.05 * output
-                output = output
-                # output =
-                # output =
-                # output =
+                # output = output
+                # output = output_local
+                # output = output_local + 0.1 * output
+                output = output_local + 0.15 * output
+                # output = output_local + 0.2 * output
+                # output = output_local + 0.3 * output
+                # output = output_local + 0.5 * output
             else:
                 output = output_local
             output /= 100.0
