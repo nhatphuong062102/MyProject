@@ -611,7 +611,12 @@ class LocProto(TrainerX):
 
             self.model_backward_and_update(loss)
 
-        output_ens = output_local + 0.05 * output
+        # output_ens = output_local + 0.05 * output   # gốc
+        output_ens = output
+        # output_ens =
+        # output_ens =
+        # output_ens =
+
         loss_summary = {
             "loss": loss.item(),
             "loss_id": loss_id.item(),
@@ -702,7 +707,11 @@ class LocProto(TrainerX):
             output = self.model_inference(input)
             if len(output) >= 2:
                 if self.cfg.use_refined:
-                    output = output[1] + 0.05 * output[0]
+                    # output = output[1] + 0.05 * output[0]
+                    output = output[0]
+                    # output =
+                    # output =
+                    # output =
                 else:
                     output = output[1]
             self.label.append(label)
@@ -1462,7 +1471,11 @@ class LocProto(TrainerX):
             images = images.cuda()
             output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
             if self.cfg.use_refined:
-                output = output_local + 0.05 * output
+                # output = output_local + 0.05 * output
+                output = output
+                # output =
+                # output =
+                # output =
             else:
                 output = output_local
             output /= 100.0
