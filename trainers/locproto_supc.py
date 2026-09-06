@@ -513,7 +513,7 @@ class LocProto(TrainerX):
         cfg = self.cfg
         classnames = self.dm.dataset.classnames
 
-        # self.lambda_value = cfg.lambda_value
+        self.lambda_value = cfg.lambda_value
         self.top_k = cfg.topk
         self.label = []
 
