@@ -48,8 +48,8 @@ def reset_cfg(cfg, args):
     if args.backbone:
         cfg.MODEL.BACKBONE.NAME = args.backbone
 
-    if args.lambda_value:
-        cfg.lambda_value = args.lambda_value
+    # if args.lambda_value:
+    #     cfg.lambda_value = args.lambda_value
 
     if args.topk:
         cfg.topk = args.topk
@@ -253,8 +253,8 @@ if __name__ == "__main__":
         help="modify config options using the command-line",
     )
     # augment for LoCoOp
-    parser.add_argument('--lambda_value', type=float, default=1,
-                        help='temperature parameter')
+    # parser.add_argument('--lambda_value', type=float, default=1,
+    #                     help='temperature parameter')
     parser.add_argument('--topk', type=int, default=50,
                         help='topk')
     
