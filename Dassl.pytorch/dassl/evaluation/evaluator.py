@@ -118,8 +118,8 @@ class Classification(EvaluatorBase):
             cmat = confusion_matrix(
                 self._y_true, self._y_pred, normalize="true"
             )
-            save_path = osp.join(self.cfg.OUTPUT_DIR, "cmat.pt")
-            #save_path = osp.join(self.cfg.OUTPUT_DIR, "cmat-output.pt")
+            #save_path = osp.join(self.cfg.OUTPUT_DIR, "cmat.pt")
+            save_path = osp.join(self.cfg.OUTPUT_DIR, "cmat-005output.pt")
             torch.save(cmat, save_path)
             print(f"Confusion matrix is saved to {save_path}")
 
