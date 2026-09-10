@@ -393,7 +393,7 @@ class CustomCLIP(nn.Module):
         self.cfg = cfg
 
         #description_file = os.path.join('./description', f'{cfg.DATASET.NAME}.json')
-        description_file = os.path.join('./description', f'{cfg.DATASET.NAME}-15b.json')
+        description_file = os.path.join('./description', f'{cfg.DATASET.NAME}-15d.json')
         print(f'Using description file: {description_file}')
         llm_descriptions = json.load(open(description_file))
         text_features = []
@@ -513,7 +513,7 @@ class LocProto(TrainerX):
         cfg = self.cfg
         classnames = self.dm.dataset.classnames
 
-        self.lambda_value = cfg.lambda_value
+        # self.lambda_value = cfg.lambda_value
         self.top_k = cfg.topk
         self.label = []
 
@@ -619,6 +619,7 @@ class LocProto(TrainerX):
             "loss_id2": loss_id2.item(),
             "loss_distil_img": loss_distil_img.item(),
             "loss_distil_text": loss_distil_text.item(),
+            "loss_supc": loss_supc.item(),
             "acc": compute_accuracy(output_ens, label)[0].item(),
         }
 

@@ -31,8 +31,8 @@ do
             --trainer ${TRAINER} \
             --dataset-config-file configs/datasets/${DATASET}.yaml \
             --seed ${SEED} \
-            --output-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/topk50 \
-            --model-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/topk50 \
+            --output-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/BTXRD15d \
+            --model-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/BTXRD15d \
             --load-epoch 75 \
             --config-file configs/trainers/${TRAINER}/${CFG}.yaml \
             --T ${T} \
