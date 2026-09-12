@@ -51,8 +51,9 @@ def reset_cfg(cfg, args):
     # if args.lambda_value:
     #     cfg.lambda_value = args.lambda_value
 
-    if args.topk:
-        cfg.topk = args.topk
+    # if args.topk:
+    #     cfg.topk = args.topk
+    cfg.topk = args.topk
 
     # k_align
     if args.kalign:
