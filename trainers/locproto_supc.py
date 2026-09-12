@@ -393,7 +393,7 @@ class CustomCLIP(nn.Module):
         self.cfg = cfg
 
         #description_file = os.path.join('./description', f'{cfg.DATASET.NAME}.json')
-        description_file = os.path.join('./description', f'{cfg.DATASET.NAME}-15d.json')
+        description_file = os.path.join('./description', f'{cfg.DATASET.NAME}-15b.json')
         print(f'Using description file: {description_file}')
         llm_descriptions = json.load(open(description_file))
         text_features = []

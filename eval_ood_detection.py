@@ -255,9 +255,11 @@ if __name__ == "__main__":
     # augment for LoCoOp
     # parser.add_argument('--lambda_value', type=float, default=1,
     #                     help='temperature parameter')
-    parser.add_argument('--topk', type=int, default=50,
-                        help='topk')
-    
+    # parser.add_argument('--topk', type=int, default=50,
+    #                     help='topk')
+    parser.add_argument('--topk', type=int, default=None,
+                    help='topk')
+
     # k_align
     parser.add_argument('--kalign', type=int, default=10,
                         help='kalign for Description-aware Local Image-Text Alignment')
