@@ -1,6 +1,8 @@
 import os
 import sys
 import time
+from datetime import datetime
+from zoneinfo import ZoneInfo
 import os.path as osp
 
 from .tools import mkdir_if_missing
@@ -67,8 +69,9 @@ def setup_logger(output=None):
         fpath = osp.join(output, "log.txt")
 
     if osp.exists(fpath):
-        #fpath += '-02output'
+        # fpath += '-02output'
         # make sure the existing log file is not over-written
-        fpath += time.strftime("-%Y-%m-%d-%H-%M-%S")
+        # fpath += time.strftime("-%Y-%m-%d-%H-%M-%S")
+        fpath += datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("-%Y-%m-%d-%H-%M-%S")
 
     sys.stdout = Logger(fpath)
