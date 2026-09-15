@@ -23,7 +23,7 @@ class SupConLoss(nn.Module):
 
         """===== DÙNG CHO VIỆC IN GIÁ TRỊ ======"""
         if not SupConLoss._printed_temperature:
-            print(f"SupConLoss temperature = {self.temperature}")
+            print(f"SupConLoss temperature = {self.temperature}, base_temperature = {self.base_temperature}")
             SupConLoss._printed_temperature = True
         """---------------"""
 
