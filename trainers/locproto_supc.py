@@ -271,8 +271,11 @@ def get_supc_loss(g_img_feats, id_loc_feats, ood_loc_feats, text_stu, text_tea, 
     # loss = SupConLoss(temperature=0.5, base_temperature=0.5)(features=features, labels=res_label)
 
     # loss = SupConLoss(temperature=0.07, base_temperature=0.07)(features=features, labels=res_label)
-    loss = SupConLoss(temperature=0.15, base_temperature=0.15)(features=features, labels=res_label)
+    # loss = SupConLoss(temperature=0.15, base_temperature=0.15)(features=features, labels=res_label)
     # loss = SupConLoss(temperature=0.3, base_temperature=0.3)(features=features, labels=res_label)
+
+    loss = SupConLoss(temperature=0.7, base_temperature=0.7)(features=features, labels=res_label)
+    # loss = SupConLoss(temperature=1.0, base_temperature=1.0)(features=features, labels=res_label)
     return loss
 
 
