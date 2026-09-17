@@ -268,17 +268,7 @@ def get_supc_loss(g_img_feats, id_loc_feats, ood_loc_feats, text_stu, text_tea, 
     features = torch.cat([id_loc_feats, ood_loc_feats], dim=0)
     res_label = torch.cat([label, ood_ex_label], dim=0)
 
-    # loss = SupConLoss(temperature=0.5, base_temperature=0.5)(features=features, labels=res_label)
-
-    # loss = SupConLoss(temperature=0.07, base_temperature=0.07)(features=features, labels=res_label)
-    # loss = SupConLoss(temperature=0.15, base_temperature=0.15)(features=features, labels=res_label)
-    # loss = SupConLoss(temperature=0.3, base_temperature=0.3)(features=features, labels=res_label)
-
-    # loss = SupConLoss(temperature=0.7, base_temperature=0.7)(features=features, labels=res_label)
-    # loss = SupConLoss(temperature=1.0, base_temperature=1.0)(features=features, labels=res_label)
-
-    # loss = SupConLoss(temperature=0.6, base_temperature=0.6)(features=features, labels=res_label)
-    loss = SupConLoss(temperature=0.55, base_temperature=0.55)(features=features, labels=res_label)
+    loss = SupConLoss(temperature=0.5, base_temperature=0.5)(features=features, labels=res_label)
     return loss
 
 
@@ -614,15 +604,24 @@ class LocProto(TrainerX):
                                     reduction='mean') * 10
             loss_distil_text = F.l1_loss(all_text_features_tea, text_stu,
                                     reduction='mean') * 25
+
+            # loss_distil_text = F.l1_loss(all_text_features_tea, text_stu,
+            #                                     reduction='mean') * 15
+            # loss_distil_text = F.l1_loss(all_text_features_tea, text_stu,
+            #                                     reduction='mean') * 20
+            # loss_distil_text = F.l1_loss(all_text_features_tea, text_stu,
+            #                                     reduction='mean') * 30
             
             loss_id2 = F.cross_entropy(output_local, label)
-            loss_supc = get_supc_loss(img_feat_stu, id_loc_feats, ood_loc_feats, l2p, l2p_tea, label, topk=self.top_k) * 0.5
+            # loss_supc = get_supc_loss(img_feat_stu, id_loc_feats, ood_loc_feats, l2p, l2p_tea, label, topk=self.top_k) * 0.5
 
             # loss_supc = get_supc_loss(img_feat_stu, id_loc_feats, ood_loc_feats, l2p, l2p_tea, label, topk=self.top_k) * 0.1
             # loss_supc = get_supc_loss(img_feat_stu, id_loc_feats, ood_loc_feats, l2p, l2p_tea, label, topk=self.top_k) * 0.2
             # loss_supc = get_supc_loss(img_feat_stu, id_loc_feats, ood_loc_feats, l2p, l2p_tea, label, topk=self.top_k) * 0.3
             # loss_supc = get_supc_loss(img_feat_stu, id_loc_feats, ood_loc_feats, l2p, l2p_tea, label, topk=self.top_k) * 0.4
             # loss_supc = get_supc_loss(img_feat_stu, id_loc_feats, ood_loc_feats, l2p, l2p_tea, label, topk=self.top_k) * 0.6
+
+            loss_supc = get_supc_loss(img_feat_stu, id_loc_feats, ood_loc_feats, l2p, l2p_tea, label, topk=self.top_k) * 0.55
 
             loss = loss_id + loss_id2 + loss_distil_img + loss_distil_text + loss_supc
 
