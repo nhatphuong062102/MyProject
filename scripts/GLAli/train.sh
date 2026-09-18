@@ -34,7 +34,7 @@ for SEED in 1
 do
     for SHOTS in 32
     do
-        DIR=output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/40distil_text
+        DIR=output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/5distil_img
         # if [ -d "$DIR" ]; the6
         #     echo "Oops! The results exist at ${DIR} (so skip this job)"
         # else
