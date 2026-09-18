@@ -602,13 +602,25 @@ class LocProto(TrainerX):
             loss_id = F.cross_entropy(output, label)
             loss_distil_img = F.l1_loss(img_feat_tea, img_feat_stu,
                                     reduction='mean') * 10
+
+            # loss_distil_img = F.l1_loss(img_feat_tea, img_feat_stu,
+            #                         reduction='mean') * 5
+            # loss_distil_img = F.l1_loss(img_feat_tea, img_feat_stu,
+            #                         reduction='mean') * 20
+        
+
             # loss_distil_text = F.l1_loss(all_text_features_tea, text_stu,
             #                         reduction='mean') * 25
 
-            loss_distil_text = F.l1_loss(all_text_features_tea, text_stu,
-                                    reduction='mean') * 20
             # loss_distil_text = F.l1_loss(all_text_features_tea, text_stu,
-            #                                     reduction='mean') * 30
+            #                         reduction='mean') * 20
+            # loss_distil_text = F.l1_loss(all_text_features_tea, text_stu,
+            #                         reduction='mean') * 30
+
+            # loss_distil_text = F.l1_loss(all_text_features_tea, text_stu,
+            #                         reduction='mean') * 35
+            loss_distil_text = F.l1_loss(all_text_features_tea, text_stu,
+                                    reduction='mean') * 40
             
             loss_id2 = F.cross_entropy(output_local, label)
             loss_supc = get_supc_loss(img_feat_stu, id_loc_feats, ood_loc_feats, l2p, l2p_tea, label, topk=self.top_k) * 0.5
