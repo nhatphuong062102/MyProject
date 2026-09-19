@@ -24,13 +24,6 @@ OOD_CLASSES = [
     "Other mt",
 ]
 
-# OOD_CLASSES = [
-#     "Giant cell tumor",
-#     "Synovial osteochondroma",
-#     "Osteofibroma",
-# ]
-
-
 @DATASET_REGISTRY.register()
 class BTXRD(DatasetBase):
 

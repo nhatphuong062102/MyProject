@@ -603,11 +603,14 @@ class LocProto(TrainerX):
             # loss_distil_img = F.l1_loss(img_feat_tea, img_feat_stu,
             #                         reduction='mean') * 10
 
-            loss_distil_img = F.l1_loss(img_feat_tea, img_feat_stu,
-                                    reduction='mean') * 5
+            # loss_distil_img = F.l1_loss(img_feat_tea, img_feat_stu,
+            #                         reduction='mean') * 5
             # loss_distil_img = F.l1_loss(img_feat_tea, img_feat_stu,
             #                         reduction='mean') * 20
 
+            loss_distil_img = F.l1_loss(img_feat_tea, img_feat_stu,
+                                    reduction='mean') * 15
+            
             loss_distil_text = F.l1_loss(all_text_features_tea, text_stu,
                                     reduction='mean') * 30
             

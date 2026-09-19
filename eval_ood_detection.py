@@ -5,13 +5,7 @@ from dassl.config import get_cfg_default
 from dassl.engine import build_trainer
 import numpy as np
 from utils.train_eval_util import set_val_loader, set_ood_loader_ImageNet, set_mnist_loader
-#from utils.detection_util import get_and_print_results
-
-from utils.detection_util import get_and_print_results, get_measures
-from utils.data_manager import build_data_loader
-from dassl.data.transforms import build_transform
-from datasets.BTXRD import OOD_CLASSES
-
+from utils.detection_util import get_and_print_results
 import trainers.locoop
 import trainers.zsclip_contra
 import trainers.locproto_supc
@@ -108,25 +102,6 @@ def extend_cfg(cfg):
     # k_align
     cfg.kalign = 10
 
-
-def build_ood_loader_by_class(cfg, dm, target_classname):
-    """Tạo DataLoader OOD chỉ chứa ảnh thuộc đúng 1 lớp OOD cụ thể."""
-    full_ood_data = dm.dataset.ood
-    filtered_data = [item for item in full_ood_data if item.classname == target_classname]
-    if len(filtered_data) == 0:
-        print(f"Không có ảnh nào cho lớp '{target_classname}'")
-        return None
-    tfm_test = build_transform(cfg, is_train=False)
-    loader = build_data_loader(
-        cfg,
-        sampler_type=cfg.DATALOADER.TEST.SAMPLER,
-        data_source=filtered_data,
-        batch_size=cfg.DATALOADER.TEST.BATCH_SIZE,
-        tfm=tfm_test,
-        is_train=False,
-        dataset_wrapper=None
-    )
-    return loader
 
 def setup_cfg(args):
     cfg = get_cfg_default()
@@ -231,17 +206,6 @@ def main(args):
         
     if len(out_datasets) > 1:
         print("MCM avg. FPR:{}, AUROC:{}, AUPR:{}".format(np.mean(fpr_list_mcm), np.mean(auroc_list_mcm), np.mean(aupr_list_mcm)))
-
-    # === Đánh giá riêng từng lớp OOD ===
-    print("\n=== Per-class OOD breakdown ===")
-    for ood_classname in OOD_CLASSES:
-        ood_loader_c = build_ood_loader_by_class(cfg, trainer.dm, ood_classname)
-        if ood_loader_c is None:
-            continue
-        out_score_c, _, _, _ = trainer.test_ood(ood_loader_c, args.T)
-        auroc, aupr, fpr = get_measures(-in_score_mcm, -out_score_c)
-        print(f"\n --- {ood_classname} (n={len(ood_loader_c.dataset)}) ---")
-        print(f"FPR95: {fpr:.4f}, AUROC: {auroc:.4f}, AUPR: {aupr:.4f}")
 
     return
 
