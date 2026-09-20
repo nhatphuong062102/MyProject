@@ -102,7 +102,7 @@ def get_description_aware_alignment(image_features, local_image_features, all_te
     uc : [bs, C]  alignment score
     """
     if not hasattr(get_description_aware_alignment, "_printed"):
-        print("get_description_aware_alignment()")
+        print("DALA0 - get_description_aware_alignment()")
         get_description_aware_alignment._printed = True
 
     n_desc, n_cls, d = all_text_features.shape
@@ -141,9 +141,9 @@ def get_description_aware_alignment_v1(image_features, local_image_features, all
     return:
     uc : [bs, C]  alignment score
     """
-    if not hasattr(get_description_aware_alignment, "_printed"):
-        print("get_description_aware_alignment_v1()")
-        get_description_aware_alignment._printed = True
+    if not hasattr(get_description_aware_alignment_v1, "_printed"):
+        print("DALA1 - get_description_aware_alignment_v1()")
+        get_description_aware_alignment_v1._printed = True
 
     n_desc, n_cls, d = all_text_features.shape
 
@@ -186,9 +186,9 @@ def get_description_aware_alignment_v2(image_features, local_image_features, all
     return:
     logits : [bs, C]  = base_logits + uc
     """
-    if not hasattr(get_description_aware_alignment, "_printed"):
-        print("get_description_aware_alignment_v2()")
-        get_description_aware_alignment._printed = True
+    if not hasattr(get_description_aware_alignment_v2, "_printed"):
+        print("DALA2 - get_description_aware_alignment_v2()")
+        get_description_aware_alignment_v2._printed = True
 
     n_disc, n_cls, d = all_text_features.shape
 
@@ -231,9 +231,9 @@ def get_description_aware_alignment_v3(image_features, local_image_features, all
     return:
     logits : [bs, C]  = base_logits + uc
     """
-    if not hasattr(get_description_aware_alignment, "_printed"):
-        print("get_description_aware_alignment_v3()")
-        get_description_aware_alignment._printed = True
+    if not hasattr(get_description_aware_alignment_v3, "_printed"):
+        print("DALA3 - get_description_aware_alignment_v3()")
+        get_description_aware_alignment_v3._printed = True
 
     n_disc, n_cls, d = all_text_features.shape
 
@@ -600,25 +600,14 @@ class LocProto(TrainerX):
             output, output_local, img_feat_tea, img_feat_stu, text_stu, id_loc_feats, ood_loc_feats, l2p, l2p_tea = self.model(image, labels=label)
             all_text_features_tea = self.model.all_text_features_tea.clone()
             loss_id = F.cross_entropy(output, label)
-            # loss_distil_img = F.l1_loss(img_feat_tea, img_feat_stu,
-            #                         reduction='mean') * 10
-
-            # loss_distil_img = F.l1_loss(img_feat_tea, img_feat_stu,
-            #                         reduction='mean') * 5
-            # loss_distil_img = F.l1_loss(img_feat_tea, img_feat_stu,
-            #                         reduction='mean') * 20
-
             loss_distil_img = F.l1_loss(img_feat_tea, img_feat_stu,
-                                    reduction='mean') * 15
-            
+                                    reduction='mean') * 10            
             loss_distil_text = F.l1_loss(all_text_features_tea, text_stu,
                                     reduction='mean') * 30
-            
             loss_id2 = F.cross_entropy(output_local, label)
             loss_supc = get_supc_loss(img_feat_stu, id_loc_feats, ood_loc_feats, l2p, l2p_tea, label, topk=self.top_k) * 0.5
 
             loss = loss_id + loss_id2 + loss_distil_img + loss_distil_text + loss_supc
-
             self.model_backward_and_update(loss)
 
         output_ens = output_local + 0.08 * output
