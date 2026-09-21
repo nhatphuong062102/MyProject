@@ -103,6 +103,7 @@ def get_description_aware_alignment(image_features, local_image_features, all_te
     """
     if not hasattr(get_description_aware_alignment, "_printed"):
         print("DALA0 - get_description_aware_alignment()")
+        print(f"k_align = {kalign}")
         get_description_aware_alignment._printed = True
 
     n_desc, n_cls, d = all_text_features.shape
