@@ -64,6 +64,61 @@ class ResizeAndPad:
         return ImageOps.expand(img, border=(left, top, right, bottom), fill=self.fill)
 
 
+class MultiCropSquareCenter:
+    def __init__(self, size, interpolation, normalize, k=3, fill=0):
+        self.size = size  # vd (224, 224)
+        self.interpolation = interpolation
+        self.normalize = normalize
+        self.k = k
+        self.fill = fill
+        self.to_tensor = ToTensor()
+
+        # giong het pipeline cua ham center-crop goc
+        self.center_resize = Resize(max(size), interpolation=interpolation)
+        self.center_crop = CenterCrop(size)
+
+    def _get_square_crops(self, img):
+        w, h = img.size
+        side = min(w, h)
+        long_dim = max(w, h)
+
+        if long_dim > side and self.k > 1:
+            stride = (long_dim - side) / (self.k - 1)
+            positions = sorted(set(int(round(i * stride)) for i in range(self.k)))
+        else:
+            positions = [0]
+
+        if w >= h:
+            crops = [img.crop((x, 0, x + side, side)) for x in positions]
+        else:
+            crops = [img.crop((0, y, side, y + side)) for y in positions]
+
+        while len(crops) < self.k:
+            crops.append(crops[-1])
+        crops = crops[: self.k]
+        return crops  # 3 crop vuong, CHUA resize ve self.size
+
+    def __call__(self, img):
+        crops = self._get_square_crops(img)
+        tensors = []
+
+        # 3 crop: resize ve self.size (giu logic cu)
+        for c in crops:
+            c = F.resize(c, list(self.size), interpolation=self.interpolation)
+            t = self.to_tensor(c)
+            t = self.normalize(t)
+            tensors.append(t)
+
+        # anh thu 4: xu ly y het ham center-crop goc
+        c4 = self.center_resize(img)
+        c4 = self.center_crop(c4)
+        t4 = self.to_tensor(c4)
+        t4 = self.normalize(t4)
+        tensors.append(t4)
+
+        return torch.stack(tensors, dim=0)  # [K+1, C, H, W]
+
+    
 class MultiCropSquare:
     def __init__(self, size, interpolation, normalize, k=3, fill=0):
         self.size = size  # vd (224, 224)
@@ -431,36 +486,36 @@ def _build_transform_train(cfg, choices, target_size, normalize):
 """ ====================== TRANSFORM TEST ====== START ========================== """
 
 """Transform gốc - CENTER CROP"""
-def _build_transform_test(cfg, choices, target_size, normalize):
-    print("Building transform_test")
-    print("Transform gốc - CENTER CROP")
-    tfm_test = []
+# def _build_transform_test(cfg, choices, target_size, normalize):
+#     print("Building transform_test")
+#     print("Transform gốc - CENTER CROP")
+#     tfm_test = []
 
-    interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
-    input_size = cfg.INPUT.SIZE
+#     interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
+#     input_size = cfg.INPUT.SIZE
 
-    print(f"+ resize the smaller edge to {max(input_size)}")
-    tfm_test += [Resize(max(input_size), interpolation=interp_mode)]
+#     print(f"+ resize the smaller edge to {max(input_size)}")
+#     tfm_test += [Resize(max(input_size), interpolation=interp_mode)]
       
-    print(f"+ {target_size} center crop")
-    tfm_test += [CenterCrop(input_size)]
+#     print(f"+ {target_size} center crop")
+#     tfm_test += [CenterCrop(input_size)]
 
-    print("+ to torch tensor of range [0, 1]")
-    tfm_test += [ToTensor()]
+#     print("+ to torch tensor of range [0, 1]")
+#     tfm_test += [ToTensor()]
 
-    if "normalize" in choices:
-        print(
-            f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})"
-        )
-        tfm_test += [normalize]
+#     if "normalize" in choices:
+#         print(
+#             f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})"
+#         )
+#         tfm_test += [normalize]
 
-    if "instance_norm" in choices:
-        print("+ instance normalization")
-        tfm_test += [InstanceNormalization()]
+#     if "instance_norm" in choices:
+#         print("+ instance normalization")
+#         tfm_test += [InstanceNormalization()]
 
-    tfm_test = Compose(tfm_test)
+#     tfm_test = Compose(tfm_test)
 
-    return tfm_test
+#     return tfm_test
 
 
 """Transform RESIZE thẳng về 224 x 224 """
@@ -494,18 +549,18 @@ def _build_transform_test(cfg, choices, target_size, normalize):
 
 
 """Transform tạo 3 CROP """
-# def _build_transform_test(cfg, choices, target_size, normalize):
-#     print("Building transform_test")
+def _build_transform_test(cfg, choices, target_size, normalize):
+    print("Building transform_test")
 
-#     interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
-#     input_size = cfg.INPUT.SIZE
+    interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
+    input_size = cfg.INPUT.SIZE
 
-#     print("+ multi-crop (3 crop)")
-#     print("+ to torch tensor of range [0, 1]")
-#     print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, "
-#           f"std={cfg.INPUT.PIXEL_STD})")
+    print("+ multi-crop (3 crop)")
+    print("+ to torch tensor of range [0, 1]")
+    print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, "
+          f"std={cfg.INPUT.PIXEL_STD})")
 
-#     return MultiCropSquare2(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
+    return MultiCropSquare2(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
 
 
 """Transform tạo 3 CROP và 1 FULL resize thẳng 224 x 224"""
@@ -521,6 +576,22 @@ def _build_transform_test(cfg, choices, target_size, normalize):
 #     print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})")
 
 #     return MultiCropSquare(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
+
+
+"""Transform tạo 3 CROP và 1 FULL center-crop """
+# def _build_transform_test(cfg, choices, target_size, normalize):
+#     print("Building transform_test")
+
+#     interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
+#     input_size = cfg.INPUT.SIZE
+
+#     print("+ multi-crop (3 crop) + 1 center-crop")
+#     print("+ to torch tensor of range [0, 1]")
+#     print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, "
+#           f"std={cfg.INPUT.PIXEL_STD})")
+
+#     return MultiCropSquareCenter(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
+
 
 
 """ ====================== TRANSFORM TEST ====== END ============================ """

@@ -69,7 +69,7 @@ def setup_logger(output=None):
         fpath = osp.join(output, "log.txt")
 
     if osp.exists(fpath):
-        fpath += '-center'
+        fpath += '-3crop-softmax'
         # make sure the existing log file is not over-written
         # fpath += time.strftime("-%Y-%m-%d-%H-%M-%S")
         fpath += datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("-%Y-%m-%d-%H-%M-%S")
