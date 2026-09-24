@@ -463,7 +463,7 @@ def _build_transform_test(cfg, choices, target_size, normalize):
     return tfm_test
 
 
-"""Transform RESIZE thẳng về 224 x 224  -- XONG """
+"""Transform RESIZE thẳng về 224 x 224 """
 # def _build_transform_test(cfg, choices, target_size, normalize):
 #     print("Building transform_test")
 #     print("Transform RESIZE TRỰC TIẾP")
@@ -493,7 +493,7 @@ def _build_transform_test(cfg, choices, target_size, normalize):
 #     return tfm_test
 
 
-"""Transform tạo 3 CROP  --  XONG """
+"""Transform tạo 3 CROP """
 # def _build_transform_test(cfg, choices, target_size, normalize):
 #     print("Building transform_test")
 

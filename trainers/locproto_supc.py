@@ -673,7 +673,7 @@ class LocProto(TrainerX):
 
     """==================== TEST ====== START ========================="""
 
-    """Hàm test() cho transform CENTER-CROP và RESIZE thẳng về 224 x 224  -- XONG """
+    """Hàm test() cho transform CENTER-CROP và RESIZE thẳng về 224 x 224 """
     @torch.no_grad()
     def test(self, split=None):
         """A generic testing pipeline."""
@@ -720,7 +720,7 @@ class LocProto(TrainerX):
 
 
 
-    """Hàm test() cho transform tạo 3 CROP - kết hợp dựa trên LOGITS  -- XONG """ 
+    """Hàm test() cho transform tạo 3 CROP - kết hợp dựa trên LOGITS """ 
     # @torch.no_grad()
     # def test(self, split=None):
     #     """A generic testing pipeline."""
@@ -777,7 +777,7 @@ class LocProto(TrainerX):
     #     return list(results.values())[0]
 
 
-    """Hàm test() cho transform tạo 3 CROP - kết hợp dựa trên SOFTMAX  -- XONG"""
+    """Hàm test() cho transform tạo 3 CROP - kết hợp dựa trên SOFTMAX """
     # @torch.no_grad()
     # def test(self, split=None):
     #     """A generic testing pipeline."""
@@ -834,7 +834,7 @@ class LocProto(TrainerX):
     #     return list(results.values())[0]
 
     
-    """Hàm test() cho transform tạo 3 CROP - kết hợp dựa trên độ tự tin dự đoán CONFIDENCE -- XONG"""
+    """Hàm test() cho transform tạo 3 CROP - kết hợp dựa trên độ tự tin dự đoán CONFIDENCE """
     # @torch.no_grad()
     # def test(self, split=None):
     #     """A generic testing pipeline."""
@@ -894,7 +894,7 @@ class LocProto(TrainerX):
     #     return list(results.values())[0]
     
 
-    """Hàm test() cho transform tạo 3 CROP - kết hợp dựa trên dự đoán lớn nhất MAX -- XONG """
+    """Hàm test() cho transform tạo 3 CROP - kết hợp dựa trên dự đoán lớn nhất MAX """
     # @torch.no_grad()
     # def test(self, split=None):
     #     """A generic testing pipeline."""
@@ -952,7 +952,7 @@ class LocProto(TrainerX):
 
 
 
-    """Hàm test() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên LOGITS -- XONG """
+    """Hàm test() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên LOGITS """
     # @torch.no_grad()
     # def test(self, split=None):
     #     """A generic testing pipeline."""
@@ -1012,7 +1012,7 @@ class LocProto(TrainerX):
     #     return list(results.values())[0]
 
 
-    """Hàm test() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên SOFTMAX -- XONG"""
+    """Hàm test() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên SOFTMAX """
     # @torch.no_grad()
     # def test(self, split=None):
     #     """A generic testing pipeline."""
@@ -1072,7 +1072,7 @@ class LocProto(TrainerX):
     #     return list(results.values())[0]
 
 
-    """Hàm test() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên độ tự tin CONFIDENCE -- XONG """
+    """Hàm test() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên độ tự tin CONFIDENCE """
     # @torch.no_grad()
     # def test(self, split=None):
     #     """A generic testing pipeline."""
@@ -1138,7 +1138,7 @@ class LocProto(TrainerX):
     #     return list(results.values())[0]
     
 
-    """Hàm test() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên dự đoán lớn nhất MAX"""
+    """Hàm test() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên dự đoán lớn nhất MAX """
     # @torch.no_grad()
     # def test(self, split=None):
     #     """A generic testing pipeline."""
@@ -1478,7 +1478,7 @@ class LocProto(TrainerX):
 
 
 
-    """Hàm test_ood() cho transform tạo 3 CROP - kết hợp dựa trên LOGITS  -- XONG """
+    """Hàm test_ood() cho transform tạo 3 CROP - kết hợp dựa trên LOGITS """
     # @torch.no_grad()
     # def test_ood(self, data_loader, T):
     #     """Test-time OOD detection pipeline."""
@@ -1523,7 +1523,7 @@ class LocProto(TrainerX):
     #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
 
 
-    """Hàm test_ood() cho transform tạo 3 CROP - kết hợp dựa trên SOFTMAX  -- XONG"""
+    """Hàm test_ood() cho transform tạo 3 CROP - kết hợp dựa trên SOFTMAX """
     # @torch.no_grad()
     # def test_ood(self, data_loader, T):
     #     """Test-time OOD detection pipeline."""
@@ -1568,7 +1568,7 @@ class LocProto(TrainerX):
     #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
 
         
-    """Hàm test_ood() cho transform tạo 3 CROP - kết hợp dựa trên độ tự tin dự đoán CONFIDENCE -- XONG """
+    """Hàm test_ood() cho transform tạo 3 CROP - kết hợp dựa trên độ tự tin dự đoán CONFIDENCE """
     # @torch.no_grad()
     # def test_ood(self, data_loader, T):
     #     """Test-time OOD detection pipeline."""
@@ -1617,7 +1617,7 @@ class LocProto(TrainerX):
     #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
         
 
-    """Hàm test_ood() cho transform tạo 3 CROP - kết hợp dựa trên dự đoán lớn nhất MAX -- XONG """
+    """Hàm test_ood() cho transform tạo 3 CROP - kết hợp dựa trên dự đoán lớn nhất MAX """
     # @torch.no_grad()
     # def test_ood(self, data_loader, T):
     #     """Test-time OOD detection pipeline."""
@@ -1662,7 +1662,7 @@ class LocProto(TrainerX):
 
 
 
-    """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên LOGITS -- XONG """
+    """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên LOGITS """
     # @torch.no_grad()
     # def test_ood(self, data_loader, T):
     #     """Test-time OOD detection pipeline."""
@@ -1708,7 +1708,7 @@ class LocProto(TrainerX):
     #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
         
 
-    """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên SOFTMAX  -- XONG """
+    """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên SOFTMAX """
     # @torch.no_grad()
     # def test_ood(self, data_loader, T):
     #     """Test-time OOD detection pipeline."""
@@ -1754,7 +1754,7 @@ class LocProto(TrainerX):
     #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
         
 
-    """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên độ tự tin CONFIDENCE -- XONG """
+    """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên độ tự tin CONFIDENCE """
     # @torch.no_grad()
     # def test_ood(self, data_loader, T):
     #     """Test-time OOD detection pipeline."""
@@ -1808,7 +1808,7 @@ class LocProto(TrainerX):
     #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
 
 
-    """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên dự đoán lớn nhất MAX"""
+    """Hàm test_ood() cho transform tạo 3 CROP và 1 FULL - kết hợp dựa trên dự đoán lớn nhất MAX """
     # @torch.no_grad()
     # def test_ood(self, data_loader, T):
     #     """Test-time OOD detection pipeline."""
