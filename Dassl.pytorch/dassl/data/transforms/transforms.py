@@ -110,11 +110,11 @@ class MultiCropSquareCenter:
             tensors.append(t)
 
         # anh thu 4: xu ly y het ham center-crop goc
-        c4 = self.center_resize(img)
-        c4 = self.center_crop(c4)
-        t4 = self.to_tensor(c4)
-        t4 = self.normalize(t4)
-        tensors.append(t4)
+        c_full = self.center_resize(img)
+        c_full = self.center_crop(c_full)
+        t_full = self.to_tensor(c_full)
+        t_full = self.normalize(t_full)
+        tensors.append(t_full)
 
         return torch.stack(tensors, dim=0)  # [K+1, C, H, W]
 
@@ -549,21 +549,6 @@ def _build_transform_train(cfg, choices, target_size, normalize):
 
 
 """Transform tạo 3 CROP """
-def _build_transform_test(cfg, choices, target_size, normalize):
-    print("Building transform_test")
-
-    interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
-    input_size = cfg.INPUT.SIZE
-
-    print("+ multi-crop (3 crop)")
-    print("+ to torch tensor of range [0, 1]")
-    print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, "
-          f"std={cfg.INPUT.PIXEL_STD})")
-
-    return MultiCropSquare2(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
-
-
-"""Transform tạo 3 CROP và 1 FULL resize thẳng 224 x 224"""
 # def _build_transform_test(cfg, choices, target_size, normalize):
 #     print("Building transform_test")
 
@@ -571,11 +556,26 @@ def _build_transform_test(cfg, choices, target_size, normalize):
 #     input_size = cfg.INPUT.SIZE
 
 #     print("+ multi-crop (3 crop)")
-#     print(f"+ add 1 full image resized to target_size={target_size}")
 #     print("+ to torch tensor of range [0, 1]")
-#     print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})")
+#     print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, "
+#           f"std={cfg.INPUT.PIXEL_STD})")
 
-#     return MultiCropSquare(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
+#     return MultiCropSquare2(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
+
+
+"""Transform tạo 3 CROP và 1 FULL resize thẳng 224 x 224"""
+def _build_transform_test(cfg, choices, target_size, normalize):
+    print("Building transform_test")
+
+    interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
+    input_size = cfg.INPUT.SIZE
+
+    print("+ multi-crop (3 crop)")
+    print(f"+ add 1 full image resized to target_size={target_size}")
+    print("+ to torch tensor of range [0, 1]")
+    print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})")
+
+    return MultiCropSquare(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
 
 
 """Transform tạo 3 CROP và 1 FULL center-crop """
