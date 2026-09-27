@@ -483,6 +483,20 @@ def _build_transform_train(cfg, choices, target_size, normalize):
 
     return tfm_train
 
+
+def _build_transform_test(cfg, choices, target_size, normalize):
+    print("Building transform_test")
+
+    interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
+    input_size = cfg.INPUT.SIZE
+
+    print("+ multi-crop (3 crop) + 1 center-crop")
+    print("+ to torch tensor of range [0, 1]")
+    print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, "
+          f"std={cfg.INPUT.PIXEL_STD})")
+
+    return MultiCropSquareCenter(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
+
 """ ====================== TRANSFORM TEST ====== START ========================== """
 
 """Transform gốc - CENTER CROP"""
@@ -578,19 +592,19 @@ def _build_transform_train(cfg, choices, target_size, normalize):
 #     return MultiCropSquare(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
 
 
-"""Transform tạo 3 CROP và 1 FULL center-crop """
-def _build_transform_test(cfg, choices, target_size, normalize):
-    print("Building transform_test")
+"""Transform tạo 3 CROP và 1 FULL center-crop -- CHỌN """
+# def _build_transform_test(cfg, choices, target_size, normalize):
+#     print("Building transform_test")
 
-    interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
-    input_size = cfg.INPUT.SIZE
+#     interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
+#     input_size = cfg.INPUT.SIZE
 
-    print("+ multi-crop (3 crop) + 1 center-crop")
-    print("+ to torch tensor of range [0, 1]")
-    print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, "
-          f"std={cfg.INPUT.PIXEL_STD})")
+#     print("+ multi-crop (3 crop) + 1 center-crop")
+#     print("+ to torch tensor of range [0, 1]")
+#     print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, "
+#           f"std={cfg.INPUT.PIXEL_STD})")
 
-    return MultiCropSquareCenter(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
+#     return MultiCropSquareCenter(size=input_size, interpolation=interp_mode, normalize=normalize, k=3)
 
 
 
