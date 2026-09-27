@@ -490,7 +490,7 @@ def _build_transform_test(cfg, choices, target_size, normalize):
     interp_mode = INTERPOLATION_MODES[cfg.INPUT.INTERPOLATION]
     input_size = cfg.INPUT.SIZE
 
-    print("+ multi-crop (3 crop) + 1 center-crop")
+    print("+ multi-crop + center-crop")
     print("+ to torch tensor of range [0, 1]")
     print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, "
           f"std={cfg.INPUT.PIXEL_STD})")

@@ -706,9 +706,9 @@ class LocProto(TrainerX):
             output = self.model_inference(input)
             if len(output) >= 2:
                 if self.cfg.use_refined:
-                    output = output[1] + 0.05 * output[0]      #origin
+                    # output = output[1] + 0.05 * output[0]      #origin
 
-                    # output = output[0]
+                    output = output[0]
                     # output = output[0] + 0.1 * output[1]
                     # output = output[0] + 0.3 * output[1]
                     # output = output[0] + 0.5 * output[1]
@@ -771,9 +771,9 @@ class LocProto(TrainerX):
 
             output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
             if self.cfg.use_refined:
-                output = output_local + 0.05 * output
+                # output = output_local + 0.05 * output
 
-                # output = output
+                output = output
                 # output = output + 0.1 * output_local
                 # output = output + 0.3 * output_local
                 # output = output + 0.5 * output_local
