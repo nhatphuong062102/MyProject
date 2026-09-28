@@ -710,10 +710,10 @@ class LocProto(TrainerX):
 
                     # output = output[0]
                     # output = output[0] + 0.1 * output[1]
-                    output = output[0] + 0.3 * output[1]
+                    # output = output[0] + 0.3 * output[1]
                     # output = output[0] + 0.5 * output[1]
                     # output = output[0] + 0.7 * output[1]
-                    # output = output[0] + 1.0 * output[1]
+                    output = output[0] + 1.0 * output[1]
 
                     # output = output[1]
                     # output = output[1] + 0.1 * output[0]
@@ -775,10 +775,10 @@ class LocProto(TrainerX):
 
                 # output = output
                 # output = output + 0.1 * output_local
-                output = output + 0.3 * output_local
+                # output = output + 0.3 * output_local
                 # output = output + 0.5 * output_local
                 # output = output + 0.7 * output_local
-                # output = output + 1.0 * output_local
+                output = output + 1.0 * output_local
 
                 # output = output_local
                 # output = output_local + 0.1 * output
