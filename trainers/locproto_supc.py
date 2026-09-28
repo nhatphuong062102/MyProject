@@ -708,9 +708,9 @@ class LocProto(TrainerX):
                 if self.cfg.use_refined:
                     # output = output[1] + 0.05 * output[0]      #origin
 
-                    output = output[0]
+                    # output = output[0]
                     # output = output[0] + 0.1 * output[1]
-                    # output = output[0] + 0.3 * output[1]
+                    output = output[0] + 0.3 * output[1]
                     # output = output[0] + 0.5 * output[1]
                     # output = output[0] + 0.7 * output[1]
                     # output = output[0] + 1.0 * output[1]
@@ -773,9 +773,9 @@ class LocProto(TrainerX):
             if self.cfg.use_refined:
                 # output = output_local + 0.05 * output
 
-                output = output
+                # output = output
                 # output = output + 0.1 * output_local
-                # output = output + 0.3 * output_local
+                output = output + 0.3 * output_local
                 # output = output + 0.5 * output_local
                 # output = output + 0.7 * output_local
                 # output = output + 1.0 * output_local
