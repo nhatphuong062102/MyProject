@@ -707,27 +707,7 @@ class LocProto(TrainerX):
             output = self.model_inference(input)
             if len(output) >= 2:
                 if self.cfg.use_refined:
-                    # output = output[1] + 0.05 * output[0]      #origin
-
-                    # output = output[0]
-                    # output = output[0] + 0.1 * output[1]
-                    # output = output[0] + 0.3 * output[1]
-                    # output = output[0] + 0.5 * output[1]
-                    # output = output[0] + 0.7 * output[1]
-                    # output = output[0] + 1.0 * output[1]
-
-                    # output = output[1]
-                    # output = output[1] + 0.1 * output[0]
-                    # output = output[1] + 0.3 * output[0]
-                    # output = output[1] + 0.5 * output[0]
-                    # output = output[1] + 0.7 * output[0]
-
-                    output = output[1] + 0.02 * output[0]
-                    # output = output[1] + 0.04 * output[0]
-                    # output = output[1] + 0.06 * output[0]
-                    # output = output[1] + 0.08 * output[0]
-                    # output = output[1] + 0.15 * output[0]
-
+                    output = output[1] + 0.08 * output[0]
                 else:
                     output = output[1]
 
@@ -778,27 +758,7 @@ class LocProto(TrainerX):
 
             output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
             if self.cfg.use_refined:
-                # output = output_local + 0.05 * output
-
-                # output = output
-                # output = output + 0.1 * output_local
-                # output = output + 0.3 * output_local
-                # output = output + 0.5 * output_local
-                # output = output + 0.7 * output_local
-                # output = output + 1.0 * output_local
-
-                # output = output_local
-                # output = output_local + 0.1 * output
-                # output = output_local + 0.3 * output
-                # output = output_local + 0.5 * output
-                # output = output_local + 0.7 * output
-
-                output = output_local + 0.02 * output
-                # output = output_local + 0.04 * output
-                # output = output_local + 0.06 * output
-                # output = output_local + 0.08 * output
-                # output = output_local + 0.15 * output
-
+                output = output_local + 0.08 * output
             else:
                 output = output_local
             output /= 100.0
@@ -862,7 +822,7 @@ class LocProto(TrainerX):
     #         output = self.model_inference(input)
     #         if len(output) >= 2:
     #             if self.cfg.use_refined:
-    #                 output = output[1] + 0.05 * output[0]      #origin
+    #                 output = output[1] + 0.08 * output[0]      #origin
     #                 #output = output[0]
     #             else:
     #                 output = output[1]
@@ -913,7 +873,7 @@ class LocProto(TrainerX):
 
     #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
     #         if self.cfg.use_refined:
-    #             output = output_local + 0.05 * output
+    #             output = output_local + 0.08 * output
     #         else:
     #             output = output_local
     #         output /= 100.0
@@ -970,7 +930,7 @@ class LocProto(TrainerX):
     #         output = self.model_inference(input)
     #         if len(output) >= 2:
     #             if self.cfg.use_refined:
-    #                 output = output[1] + 0.05 * output[0]
+    #                 output = output[1] + 0.08 * output[0]
     #             else:
     #                 output = output[1]
 
@@ -1021,7 +981,7 @@ class LocProto(TrainerX):
 
     #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
     #         if self.cfg.use_refined:
-    #             output = output_local + 0.05 * output
+    #             output = output_local + 0.08 * output
     #         else:
     #             output = output_local
     #         output /= 100.0
@@ -1078,7 +1038,7 @@ class LocProto(TrainerX):
     #         output = self.model_inference(input)
     #         if len(output) >= 2:
     #             if self.cfg.use_refined:
-    #                 output = output[1] + 0.05 * output[0]      #origin
+    #                 output = output[1] + 0.08 * output[0]      #origin
     #                 #output = output[0]
     #             else:
     #                 output = output[1]
@@ -1135,7 +1095,7 @@ class LocProto(TrainerX):
 
     #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
     #         if self.cfg.use_refined:
-    #             output = output_local + 0.05 * output
+    #             output = output_local + 0.08 * output
     #         else:
     #             output = output_local
     #         output /= 100.0
@@ -1201,7 +1161,7 @@ class LocProto(TrainerX):
     #         output = self.model_inference(input)
     #         if len(output) >= 2:
     #             if self.cfg.use_refined:
-    #                 output = output[1] + 0.05 * output[0]      #origin
+    #                 output = output[1] + 0.08 * output[0]      #origin
     #                 #output = output[0]
     #             else:
     #                 output = output[1]
@@ -1254,7 +1214,7 @@ class LocProto(TrainerX):
 
     #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
     #         if self.cfg.use_refined:
-    #             output = output_local + 0.05 * output
+    #             output = output_local + 0.08 * output
     #         else:
     #             output = output_local
     #         output /= 100.0
@@ -1316,7 +1276,7 @@ class LocProto(TrainerX):
     #         output = self.model_inference(input)
     #         if len(output) >= 2:
     #             if self.cfg.use_refined:
-    #                 output = output[1] + 0.05 * output[0]      #origin
+    #                 output = output[1] + 0.08 * output[0]      #origin
     #                 #output = output[0]
     #             else:
     #                 output = output[1]
@@ -1365,7 +1325,7 @@ class LocProto(TrainerX):
 
     #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
     #         if self.cfg.use_refined:
-    #             output = output_local + 0.05 * output
+    #             output = output_local + 0.08 * output
     #         else:
     #             output = output_local
     #         output /= 100.0
@@ -1423,7 +1383,7 @@ class LocProto(TrainerX):
     #         output = self.model_inference(input)
     #         if len(output) >= 2:
     #             if self.cfg.use_refined:
-    #                 output = output[1] + 0.05 * output[0]      #origin
+    #                 output = output[1] + 0.08 * output[0]      #origin
     #                 #output = output[0]
     #             else:
     #                 output = output[1]
@@ -1472,7 +1432,7 @@ class LocProto(TrainerX):
 
     #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
     #         if self.cfg.use_refined:
-    #             output = output_local + 0.05 * output
+    #             output = output_local + 0.08 * output
     #         else:
     #             output = output_local
     #         output /= 100.0
@@ -1529,7 +1489,7 @@ class LocProto(TrainerX):
     #         output = self.model_inference(input)
     #         if len(output) >= 2:
     #             if self.cfg.use_refined:
-    #                 output = output[1] + 0.05 * output[0]      #origin
+    #                 output = output[1] + 0.08 * output[0]      #origin
     #                 #output = output[0]
     #             else:
     #                 output = output[1]
@@ -1581,7 +1541,7 @@ class LocProto(TrainerX):
 
     #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
     #         if self.cfg.use_refined:
-    #             output = output_local + 0.05 * output
+    #             output = output_local + 0.08 * output
     #         else:
     #             output = output_local
     #         output /= 100.0
@@ -1642,7 +1602,7 @@ class LocProto(TrainerX):
     #         output = self.model_inference(input)
     #         if len(output) >= 2:
     #             if self.cfg.use_refined:
-    #                 output = output[1] + 0.05 * output[0]      #origin
+    #                 output = output[1] + 0.08 * output[0]      #origin
     #                 #output = output[0]
     #             else:
     #                 output = output[1]
@@ -1691,7 +1651,7 @@ class LocProto(TrainerX):
 
     #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
     #         if self.cfg.use_refined:
-    #             output = output_local + 0.05 * output
+    #             output = output_local + 0.08 * output
     #         else:
     #             output = output_local
     #         output /= 100.0
@@ -1743,8 +1703,7 @@ class LocProto(TrainerX):
 
     #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
     #         if self.cfg.use_refined:
-    #         # ĐIỀN GIÁ TRỊ OUTPUT ENSEMBLE THÍCH HỢP
-    #             output = output + 0.3 * output_local
+    #             output = output + 0.8 * output_local
     #         else:
     #             output = output_local
     #         output /= 100.0
@@ -1792,8 +1751,7 @@ class LocProto(TrainerX):
 
     #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
     #         if self.cfg.use_refined:
-    #             # ĐIỀN GIÁ TRỊ OUTPUT ENSEMBLE THÍCH HỢP
-    #             output = output + 0.3 * output_local
+    #             output = output + 0.8 * output_local
     #         else:
     #             output = output_local
     #         output /= 100.0
@@ -1844,8 +1802,7 @@ class LocProto(TrainerX):
 
     #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
     #         if self.cfg.use_refined:
-    #             # ĐIỀN GIÁ TRỊ OUTPUT ENSEMBLE THÍCH HỢP
-    #             output = output + 0.3 * output_local
+    #             output = output + 0.8 * output_local
     #         else:
     #             output = output_local
     #         output /= 100.0
