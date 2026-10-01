@@ -9,6 +9,13 @@ from .oxford_pets import OxfordPets
 
 TO_BE_IGNORED = ["README.txt"]
 
+ID_CLASSES = [
+    "Osteochondroma",
+    "Osteosarcoma",
+    "Multiple osteochondromas",
+    "Simple bone cyst",
+]
+
 @DATASET_REGISTRY.register()
 class BTXRD2(DatasetBase):
 
@@ -41,6 +48,10 @@ class BTXRD2(DatasetBase):
             with open(self.preprocessed, "wb") as f:
                 pickle.dump(preprocessed, f, protocol=pickle.HIGHEST_PROTOCOL)
 
+        # Đặt label theo thứ tự ID_CLASSES, giống BTXRD
+        train = self.relabel(train)
+        test = self.relabel(test)
+        
         num_shots = cfg.DATASET.NUM_SHOTS
         if num_shots >= 1:
             seed = cfg.SEED
@@ -64,6 +75,16 @@ class BTXRD2(DatasetBase):
         super().__init__(train_x=train, val=test, test=test)
 
 
+    @staticmethod
+    def relabel(dataset):
+        relabeler = {name: i for i, name in enumerate(ID_CLASSES)}
+        return [
+            Datum(impath=x.impath, label=relabeler[x.classname], classname=x.classname)
+            for x in dataset
+            if x.classname in relabeler
+        ]
+
+    
     def read_data(self, classnames, split_dir):
         split_dir = os.path.join(self.image_dir, split_dir)
         folders = sorted(f.name for f in os.scandir(split_dir) if f.is_dir())
