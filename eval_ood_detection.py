@@ -13,7 +13,6 @@ import datasets.skin40
 import datasets.ISIC
 import datasets.Dermnet
 import datasets.BTXRD
-import datasets.BTXRD2
 from os import path as osp
 
 def print_args(args, cfg):
@@ -163,7 +162,7 @@ def main(args):
     #     out_datasets = [item for item in ['skin40', 'ISIC', 'Dermnet'] if item != args.in_dataset]
     #     id_data_loader = trainer.dm.id_loader
 
-    if args.in_dataset in ['skin40', 'BTXRD', 'BTXRD2']:
+    if args.in_dataset in ['skin40', 'BTXRD']:
         out_datasets = [args.in_dataset]
         id_data_loader = trainer.dm.id_loader
     elif args.in_dataset == 'ISIC':

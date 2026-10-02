@@ -10,7 +10,6 @@ import datasets.skin40
 import datasets.ISIC
 import datasets.Dermnet
 import datasets.BTXRD
-import datasets.BTXRD2
 torch.cuda.empty_cache()
 
 
