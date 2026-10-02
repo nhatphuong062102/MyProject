@@ -16,6 +16,14 @@ ID_CLASSES = [
     "Simple bone cyst",
 ]
 
+OOD_CLASSES = [
+    "Giant cell tumor",
+    "Synovial osteochondroma",
+    "Osteofibroma",
+    "Other bt",
+    "Other mt",
+]
+
 @DATASET_REGISTRY.register()
 class BTXRD2(DatasetBase):
 
@@ -34,57 +42,70 @@ class BTXRD2(DatasetBase):
                 preprocessed = pickle.load(f)
                 train = preprocessed["train"]
                 test = preprocessed["test"]
-                ood = preprocessed["ood"]
-
         else:
-            id_classnames = self.read_classnames(os.path.join(self.image_dir, "train"))
-            ood_classnames = self.read_classnames(os.path.join(self.image_dir, "ood"))
+            classnames = self.read_classnames(os.path.join(self.image_dir, "train"))
+            train = self.read_data(classnames, "train")
+            test = self.read_data(classnames, "test")
 
-            train = self.read_data(id_classnames, "train")
-            test = self.read_data(id_classnames, "test")
-            ood = self.read_data(ood_classnames, "ood")
-
-            preprocessed = {"train": train, "test": test, "ood": ood}
+            preprocessed = {"train": train, "test": test}
             with open(self.preprocessed, "wb") as f:
                 pickle.dump(preprocessed, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-        # Đặt label theo thứ tự ID_CLASSES, giống BTXRD
-        train = self.relabel(train)
-        test = self.relabel(test)
-        
         num_shots = cfg.DATASET.NUM_SHOTS
         if num_shots >= 1:
             seed = cfg.SEED
-            fewshot_file = os.path.join(self.split_fewshot_dir, f"shot_{num_shots}-seed_{seed}.pkl")
-
-            if os.path.exists(fewshot_file):
-                print(f"Loading preprocessed few-shot data from {fewshot_file}")
-                with open(fewshot_file, "rb") as file:
+            preprocessed = os.path.join(self.split_fewshot_dir, f"shot_{num_shots}-seed_{seed}.pkl")
+            
+            if os.path.exists(preprocessed):
+                print(f"Loading preprocessed few-shot data from {preprocessed}")
+                with open(preprocessed, "rb") as file:
                     data = pickle.load(file)
                     train = data["train"]
             else:
                 train = self.generate_fewshot_dataset(train, num_shots=num_shots)
                 data = {"train": train}
-                print(f"Saving preprocessed few-shot data to {fewshot_file}")
-                with open(fewshot_file, "wb") as file:
+                print(f"Saving preprocessed few-shot data to {preprocessed}")
+                with open(preprocessed, "wb") as file:
                     pickle.dump(data, file, protocol=pickle.HIGHEST_PROTOCOL)
 
-        self.id = test
+        subsample = cfg.DATASET.SUBSAMPLE_CLASSES
+        ori_train = train
+        ori_val = test
+        ori_test = test
+
+        # train, test = OxfordPets.subsample_classes(train, test, subsample=subsample)
+        # _, _, id = OxfordPets.subsample_classes(ori_train, ori_test, ori_test, subsample='base')
+        # _, _, ood = OxfordPets.subsample_classes(ori_train, ori_test, ori_test, subsample='new')
+        # self.id = id
+        # self.ood = ood
+
+        train, test = self.select_by_classnames(train, test, selected_names = ID_CLASSES)
+        id = self.select_by_classnames(ori_test, selected_names = ID_CLASSES)[0]
+        ood = self.select_by_classnames(ori_test, selected_names = OOD_CLASSES)[0]
+        self.id = id
         self.ood = ood
 
         super().__init__(train_x=train, val=test, test=test)
 
-
     @staticmethod
-    def relabel(dataset):
-        relabeler = {name: i for i, name in enumerate(ID_CLASSES)}
-        return [
-            Datum(impath=x.impath, label=relabeler[x.classname], classname=x.classname)
-            for x in dataset
-            if x.classname in relabeler
-        ]
+    def select_by_classnames(*args, selected_names):
+        relabeler = {name: i for i, name in enumerate(selected_names)}
+        output = []
+        for dataset in args:
+            dataset_new = []
+            for item in dataset:
+                if item.classname not in selected_names:
+                    continue
+                item_new = Datum(
+                    impath=item.impath,
+                    label=relabeler[item.classname],
+                    classname=item.classname,
+                )
+                dataset_new.append(item_new)
+            output.append(dataset_new)
+        return output
 
-    
+
     def read_data(self, classnames, split_dir):
         split_dir = os.path.join(self.image_dir, split_dir)
         folders = sorted(f.name for f in os.scandir(split_dir) if f.is_dir())
