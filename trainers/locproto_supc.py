@@ -732,59 +732,6 @@ class LocProto(TrainerX):
 
 
     """Hàm test_ood() sử dụng MCM SCORE"""
-    # @torch.no_grad()
-    # def test_ood(self, data_loader, T):
-    #     """Test-time OOD detection pipeline."""
-    #     self.model.image_features_store = []
-    #     to_np = lambda x: x.data.cpu().numpy()
-    #     concat = lambda x: np.concatenate(x, axis=0)
-
-    #     self.set_model_mode("eval")
-    #     self.evaluator.reset()
-
-    #     glmcm_score = []
-    #     mcm_score = []
-    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
-    #         (images, labels, *id_flag) = batch
-    #         if isinstance(images, str):
-    #             images, label = self.parse_batch_test(batch)
-    #         else:
-    #             images = images.cuda()
-    #         images = images.cuda()
-
-    #         multi_crop = images.dim() == 5
-    #         if multi_crop:
-    #             bsz, k_crops = images.shape[0], images.shape[1]
-    #             images = images.view(bsz * k_crops, *images.shape[2:])
-
-    #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
-    #         if self.cfg.use_refined:
-    #             output = output_local + 0.08 * output
-    #         else:
-    #             output = output_local
-    #         output /= 100.0
-    #         output_local /= 100.0
-
-    #         if multi_crop:
-    #             output = output.view(bsz, k_crops, -1)
-    #             crop3_logits = output[:, :3, :]
-    #             full_view = output[:, 3, :]
-
-    #             crop3_max = crop3_logits.max(dim=1)[0]                    # (B, C)
-    #             output = 0.7 * crop3_max + 0.3 * full_view
-
-    #         smax_global = F.softmax(output / T, dim=-1)
-    #         smax_global = to_np(smax_global)
-    #         mcm_global_score = -np.max(smax_global, axis=1)
-    #         mcm_score.append(mcm_global_score)
-
-    #     return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
-
-
-
-    """==================== OOD SCORING ====== START ========================="""
-
-    """Hàm test_ood() sử dụng ENERGY SCORE"""
     @torch.no_grad()
     def test_ood(self, data_loader, T):
         """Test-time OOD detection pipeline."""
@@ -795,7 +742,8 @@ class LocProto(TrainerX):
         self.set_model_mode("eval")
         self.evaluator.reset()
 
-        energy_score = []
+        glmcm_score = []
+        mcm_score = []
         for batch_idx, batch in enumerate(tqdm(data_loader)):
             (images, labels, *id_flag) = batch
             if isinstance(images, str):
@@ -811,7 +759,7 @@ class LocProto(TrainerX):
 
             output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
             if self.cfg.use_refined:
-                output = output + 0.8 * output_local
+                output = output_local + 0.08 * output
             else:
                 output = output_local
             output /= 100.0
@@ -825,11 +773,63 @@ class LocProto(TrainerX):
                 crop3_max = crop3_logits.max(dim=1)[0]                    # (B, C)
                 output = 0.7 * crop3_max + 0.3 * full_view
 
-            # Energy score: E(x) = -T * logsumexp(u_c / T)
-            energy_batch = -T * to_np(torch.logsumexp(output / T, dim=-1))
-            energy_score.append(energy_batch)
+            smax_global = F.softmax(output / T, dim=-1)
+            smax_global = to_np(smax_global)
+            mcm_global_score = -np.max(smax_global, axis=1)
+            mcm_score.append(mcm_global_score)
 
-        return concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy()
+        return concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy(), concat(mcm_score)[:len(data_loader.dataset)].copy()
+
+
+
+    """==================== OOD SCORING ====== START ========================="""
+
+    """Hàm test_ood() sử dụng ENERGY SCORE"""
+    # @torch.no_grad()
+    # def test_ood(self, data_loader, T):
+    #     """Test-time OOD detection pipeline."""
+    #     self.model.image_features_store = []
+    #     to_np = lambda x: x.data.cpu().numpy()
+    #     concat = lambda x: np.concatenate(x, axis=0)
+
+    #     self.set_model_mode("eval")
+    #     self.evaluator.reset()
+
+    #     energy_score = []
+    #     for batch_idx, batch in enumerate(tqdm(data_loader)):
+    #         (images, labels, *id_flag) = batch
+    #         if isinstance(images, str):
+    #             images, label = self.parse_batch_test(batch)
+    #         else:
+    #             images = images.cuda()
+    #         images = images.cuda()
+
+    #         multi_crop = images.dim() == 5
+    #         if multi_crop:
+    #             bsz, k_crops = images.shape[0], images.shape[1]
+    #             images = images.view(bsz * k_crops, *images.shape[2:])
+
+    #         output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
+    #         if self.cfg.use_refined:
+    #             output = output + 0.8 * output_local
+    #         else:
+    #             output = output_local
+    #         output /= 100.0
+    #         output_local /= 100.0
+
+    #         if multi_crop:
+    #             output = output.view(bsz, k_crops, -1)
+    #             crop3_logits = output[:, :3, :]
+    #             full_view = output[:, 3, :]
+
+    #             crop3_max = crop3_logits.max(dim=1)[0]                    # (B, C)
+    #             output = 0.7 * crop3_max + 0.3 * full_view
+
+    #         # Energy score: E(x) = -T * logsumexp(u_c / T)
+    #         energy_batch = -T * to_np(torch.logsumexp(output / T, dim=-1))
+    #         energy_score.append(energy_batch)
+
+    #     return concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy(), concat(energy_score)[:len(data_loader.dataset)].copy()
 
 
     """Hàm test_ood() sử dụng ENTROPY SCORE"""

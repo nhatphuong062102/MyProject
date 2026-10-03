@@ -12,7 +12,9 @@ CFG=vit_b16_ep25
 
 NCTX=16
 
-T=1
+#T=1
+T=${2:-1}
+
 kalign=10
 
 # SHOTS=16
