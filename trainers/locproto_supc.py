@@ -735,6 +735,11 @@ class LocProto(TrainerX):
     @torch.no_grad()
     def test_ood(self, data_loader, T):
         """Test-time OOD detection pipeline."""
+
+        if not hasattr(self, "_printed_T"):
+            print(f"[MCM score] T = {T}")
+            self._printed_T = True
+
         self.model.image_features_store = []
         to_np = lambda x: x.data.cpu().numpy()
         concat = lambda x: np.concatenate(x, axis=0)
@@ -788,6 +793,11 @@ class LocProto(TrainerX):
     # @torch.no_grad()
     # def test_ood(self, data_loader, T):
     #     """Test-time OOD detection pipeline."""
+    
+    #     if not hasattr(self, "_printed_T"):
+    #         print(f"[ENERGY score] T = {T}")
+    #         self._printed_T = True
+        
     #     self.model.image_features_store = []
     #     to_np = lambda x: x.data.cpu().numpy()
     #     concat = lambda x: np.concatenate(x, axis=0)
@@ -836,6 +846,11 @@ class LocProto(TrainerX):
     # @torch.no_grad()
     # def test_ood(self, data_loader, T):
     #     """Test-time OOD detection pipeline."""
+
+    #     if not hasattr(self, "_printed_T"):
+    #         print(f"[ENTROPY score] T = {T}")
+    #         self._printed_T = True
+    
     #     self.model.image_features_store = []
     #     to_np = lambda x: x.data.cpu().numpy()
     #     concat = lambda x: np.concatenate(x, axis=0)
@@ -894,7 +909,12 @@ class LocProto(TrainerX):
     #     self.evaluator.reset()
 
     #     gen_score = []
-    #     gamma = 0.1  # cố định theo khuyến nghị của paper GEN, không tune
+    #     gamma = 0.1
+
+    #     if not hasattr(self, "_printed_T"):
+    #         print(f"[GEN score] T = {T}, gamma = {gamma}")
+    #         self._printed_T = True
+    
     #     for batch_idx, batch in enumerate(tqdm(data_loader)):
     #         (images, labels, *id_flag) = batch
     #         if isinstance(images, str):
