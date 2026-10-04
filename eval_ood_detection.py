@@ -211,32 +211,9 @@ def main(args):
 
 
     """============ NƠI GỌI HÀM ENERGY ====== START ========================="""
-    trainer.test()
-    in_score_energy, _, _, _ = trainer.test_ood(id_data_loader, args.T)
-    auroc_list_energy, aupr_list_energy, fpr_list_energy = [], [], []
-
-    for out_dataset in out_datasets:
-        if out_dataset == args.in_dataset:
-            ood_loader = trainer.dm.ood_loader
-        else:
-            ood_loader = set_ood_loader_ImageNet(args, out_dataset, preprocess)
-
-        out_score_energy, _, _, _ = trainer.test_ood(ood_loader, args.T)
-
-        print("Energy score")
-        get_and_print_results(args, in_score_energy, out_score_energy,
-                                auroc_list_energy, aupr_list_energy, fpr_list_energy)
-            
-    if len(out_datasets) > 1:
-        print("Energy avg. FPR:{}, AUROC:{}, AUPR:{}".format(np.mean(fpr_list_energy), np.mean(auroc_list_energy), np.mean(aupr_list_energy)))
-
-    """============ NƠI GỌI HÀM ENERGY ====== END ========================="""
-
-
-    """============ NƠI GỌI HÀM ENTROPY ====== START ========================="""
     # trainer.test()
-    # in_score_entropy, _, _, _ = trainer.test_ood(id_data_loader, args.T)
-    # auroc_list_entropy, aupr_list_entropy, fpr_list_entropy = [], [], []
+    # in_score_energy, _, _, _ = trainer.test_ood(id_data_loader, args.T)
+    # auroc_list_energy, aupr_list_energy, fpr_list_energy = [], [], []
 
     # for out_dataset in out_datasets:
     #     if out_dataset == args.in_dataset:
@@ -244,14 +221,37 @@ def main(args):
     #     else:
     #         ood_loader = set_ood_loader_ImageNet(args, out_dataset, preprocess)
 
-    #     out_score_entropy, _, _, _ = trainer.test_ood(ood_loader, args.T)
+    #     out_score_energy, _, _, _ = trainer.test_ood(ood_loader, args.T)
 
-    #     print("Entropy score")
-    #     get_and_print_results(args, in_score_entropy, out_score_entropy,
-    #                           auroc_list_entropy, aupr_list_entropy, fpr_list_entropy)
-        
+    #     print("Energy score")
+    #     get_and_print_results(args, in_score_energy, out_score_energy,
+    #                             auroc_list_energy, aupr_list_energy, fpr_list_energy)
+            
     # if len(out_datasets) > 1:
-    #     print("Entropy avg. FPR:{}, AUROC:{}, AUPR:{}".format(np.mean(fpr_list_entropy), np.mean(auroc_list_entropy), np.mean(aupr_list_entropy)))
+    #     print("Energy avg. FPR:{}, AUROC:{}, AUPR:{}".format(np.mean(fpr_list_energy), np.mean(auroc_list_energy), np.mean(aupr_list_energy)))
+
+    """============ NƠI GỌI HÀM ENERGY ====== END ========================="""
+
+
+    """============ NƠI GỌI HÀM ENTROPY ====== START ========================="""
+    trainer.test()
+    in_score_entropy, _, _, _ = trainer.test_ood(id_data_loader, args.T)
+    auroc_list_entropy, aupr_list_entropy, fpr_list_entropy = [], [], []
+
+    for out_dataset in out_datasets:
+        if out_dataset == args.in_dataset:
+            ood_loader = trainer.dm.ood_loader
+        else:
+            ood_loader = set_ood_loader_ImageNet(args, out_dataset, preprocess)
+
+        out_score_entropy, _, _, _ = trainer.test_ood(ood_loader, args.T)
+
+        print("Entropy score")
+        get_and_print_results(args, in_score_entropy, out_score_entropy,
+                              auroc_list_entropy, aupr_list_entropy, fpr_list_entropy)
+        
+    if len(out_datasets) > 1:
+        print("Entropy avg. FPR:{}, AUROC:{}, AUPR:{}".format(np.mean(fpr_list_entropy), np.mean(auroc_list_entropy), np.mean(aupr_list_entropy)))
 
     """============ NƠI GỌI HÀM ENTROPY ====== END ========================="""
 
