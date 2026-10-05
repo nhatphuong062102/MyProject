@@ -843,64 +843,14 @@ class LocProto(TrainerX):
 
 
     """Hàm test_ood() sử dụng ENTROPY SCORE"""
-    @torch.no_grad()
-    def test_ood(self, data_loader, T):
-        """Test-time OOD detection pipeline."""
-
-        if not hasattr(self, "_printed_T"):
-            print(f"[ENTROPY score] T = {T}")
-            self._printed_T = True
-    
-        self.model.image_features_store = []
-        to_np = lambda x: x.data.cpu().numpy()
-        concat = lambda x: np.concatenate(x, axis=0)
-
-        self.set_model_mode("eval")
-        self.evaluator.reset()
-
-        entropy_score = []
-        for batch_idx, batch in enumerate(tqdm(data_loader)):
-            (images, labels, *id_flag) = batch
-            if isinstance(images, str):
-                images, label = self.parse_batch_test(batch)
-            else:
-                images = images.cuda()
-            images = images.cuda()
-
-            multi_crop = images.dim() == 5
-            if multi_crop:
-                bsz, k_crops = images.shape[0], images.shape[1]
-                images = images.view(bsz * k_crops, *images.shape[2:])
-
-            output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
-            if self.cfg.use_refined:
-                output = output + 0.8 * output_local
-            else:
-                output = output_local
-            output /= 100.0
-            output_local /= 100.0
-
-            if multi_crop:
-                output = output.view(bsz, k_crops, -1)
-                crop3_logits = output[:, :3, :]
-                full_view = output[:, 3, :]
-
-                crop3_max = crop3_logits.max(dim=1)[0]                    # (B, C)
-                output = 0.7 * crop3_max + 0.3 * full_view
-
-            smax_global = F.softmax(output / T, dim=-1)
-            smax_global = to_np(smax_global)
-            # Predictive entropy: H cao -> khả năng OOD cao
-            entropy_batch = -np.sum(smax_global * np.log(smax_global + 1e-12), axis=1)
-            entropy_score.append(entropy_batch)
-
-        return concat(entropy_score)[:len(data_loader.dataset)].copy(), concat(entropy_score)[:len(data_loader.dataset)].copy(), concat(entropy_score)[:len(data_loader.dataset)].copy(), concat(entropy_score)[:len(data_loader.dataset)].copy()
-
-
-    """Hàm test_ood() sử dụng GEN SCORE"""
     # @torch.no_grad()
     # def test_ood(self, data_loader, T):
     #     """Test-time OOD detection pipeline."""
+
+    #     if not hasattr(self, "_printed_T"):
+    #         print(f"[ENTROPY score] T = {T}")
+    #         self._printed_T = True
+    
     #     self.model.image_features_store = []
     #     to_np = lambda x: x.data.cpu().numpy()
     #     concat = lambda x: np.concatenate(x, axis=0)
@@ -908,13 +858,7 @@ class LocProto(TrainerX):
     #     self.set_model_mode("eval")
     #     self.evaluator.reset()
 
-    #     gen_score = []
-    #     gamma = 0.1
-
-    #     if not hasattr(self, "_printed_T"):
-    #         print(f"[GEN score] T = {T}, gamma = {gamma}")
-    #         self._printed_T = True
-    
+    #     entropy_score = []
     #     for batch_idx, batch in enumerate(tqdm(data_loader)):
     #         (images, labels, *id_flag) = batch
     #         if isinstance(images, str):
@@ -946,11 +890,67 @@ class LocProto(TrainerX):
 
     #         smax_global = F.softmax(output / T, dim=-1)
     #         smax_global = to_np(smax_global)
-    #         # GEN thấp -> phân phối lệch (peaked) -> ID; GEN cao -> phân phối đều -> OOD
-    #         gen_batch = np.sum(np.power(smax_global, gamma) * np.power(1 - smax_global, gamma), axis=1)
-    #         gen_score.append(gen_batch)
+    #         # Predictive entropy: H cao -> khả năng OOD cao
+    #         entropy_batch = -np.sum(smax_global * np.log(smax_global + 1e-12), axis=1)
+    #         entropy_score.append(entropy_batch)
 
-    #     return concat(gen_score)[:len(data_loader.dataset)].copy(), concat(gen_score)[:len(data_loader.dataset)].copy(), concat(gen_score)[:len(data_loader.dataset)].copy(), concat(gen_score)[:len(data_loader.dataset)].copy()
+    #     return concat(entropy_score)[:len(data_loader.dataset)].copy(), concat(entropy_score)[:len(data_loader.dataset)].copy(), concat(entropy_score)[:len(data_loader.dataset)].copy(), concat(entropy_score)[:len(data_loader.dataset)].copy()
+
+
+    """Hàm test_ood() sử dụng GEN SCORE"""
+    @torch.no_grad()
+    def test_ood(self, data_loader, T):
+        """Test-time OOD detection pipeline."""
+        self.model.image_features_store = []
+        to_np = lambda x: x.data.cpu().numpy()
+        concat = lambda x: np.concatenate(x, axis=0)
+
+        self.set_model_mode("eval")
+        self.evaluator.reset()
+
+        gen_score = []
+        gamma = 0.1
+
+        if not hasattr(self, "_printed_T"):
+            print(f"[GEN score] T = {T}, gamma = {gamma}")
+            self._printed_T = True
+    
+        for batch_idx, batch in enumerate(tqdm(data_loader)):
+            (images, labels, *id_flag) = batch
+            if isinstance(images, str):
+                images, label = self.parse_batch_test(batch)
+            else:
+                images = images.cuda()
+            images = images.cuda()
+
+            multi_crop = images.dim() == 5
+            if multi_crop:
+                bsz, k_crops = images.shape[0], images.shape[1]
+                images = images.view(bsz * k_crops, *images.shape[2:])
+
+            output, output_local, _, _, _, _, _, _, _ = self.model_inference(images)
+            if self.cfg.use_refined:
+                output = output + 0.8 * output_local
+            else:
+                output = output_local
+            output /= 100.0
+            output_local /= 100.0
+
+            if multi_crop:
+                output = output.view(bsz, k_crops, -1)
+                crop3_logits = output[:, :3, :]
+                full_view = output[:, 3, :]
+
+                crop3_max = crop3_logits.max(dim=1)[0]                    # (B, C)
+                output = 0.7 * crop3_max + 0.3 * full_view
+
+            smax_global = F.softmax(output / T, dim=-1)
+            smax_global = to_np(smax_global)
+            # GEN thấp -> phân phối lệch (peaked) -> ID; GEN cao -> phân phối đều -> OOD
+            gen_batch = np.sum(np.power(smax_global, gamma) * np.power(1 - smax_global, gamma), axis=1)
+            gen_score.append(gen_batch)
+
+        return concat(gen_score)[:len(data_loader.dataset)].copy(), concat(gen_score)[:len(data_loader.dataset)].copy(), concat(gen_score)[:len(data_loader.dataset)].copy(), concat(gen_score)[:len(data_loader.dataset)].copy()
 
 
     """==================== OOD SCORING ======  END  ========================="""
