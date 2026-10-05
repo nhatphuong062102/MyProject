@@ -909,7 +909,7 @@ class LocProto(TrainerX):
         self.evaluator.reset()
 
         gen_score = []
-        gamma = 0.1
+        gamma = 0.3
 
         if not hasattr(self, "_printed_T"):
             print(f"[GEN score] T = {T}, gamma = {gamma}")
