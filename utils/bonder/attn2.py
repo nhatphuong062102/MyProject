@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from timm.models.layers import DropPath, Mlp
-
+# from timm.layers import DropPath, Mlp
 
 def weights_init_kaiming(m):
     classname = m.__class__.__name__

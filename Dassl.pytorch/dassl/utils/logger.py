@@ -69,9 +69,9 @@ def setup_logger(output=None):
         fpath = osp.join(output, "log.txt")
 
     if osp.exists(fpath):
-        fpath += '-gen-T1y09'
+        fpath += '-gen-T05y01'    #new
         # make sure the existing log file is not over-written
         # fpath += time.strftime("-%Y-%m-%d-%H-%M-%S")
-        fpath += datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("-%Y-%m-%d-%H-%M-%S")
+        fpath += datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("-%Y-%m-%d-%H-%M-%S")    #new
 
     sys.stdout = Logger(fpath)

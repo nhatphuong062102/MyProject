@@ -21,6 +21,7 @@ import os
 import json
 from copy import deepcopy
 from timm.models.layers import DropPath, Mlp
+# from timm.layers import DropPath, Mlp
 from utils.bonder import CrossAttnBlock
 from utils.loss import SupConLoss
 
@@ -556,8 +557,8 @@ class LocProto(TrainerX):
             
             if cfg.is_bonder:
                 cfg.OPTIM2 = deepcopy(cfg.OPTIM)
-                #cfg.OPTIM2.LR = cfg.OPTIM.LR    # Phiên bản LR dùng chung
-                cfg.OPTIM2.LR = 1e-3           # Phiên bản riêng cho bonder
+                #cfg.OPTIM2.LR = cfg.OPTIM.LR    # Phiên bản LR dùng chung    #new
+                cfg.OPTIM2.LR = 1e-3            # Phiên bản riêng cho bonder
                 self.optim2 = build_optimizer(self.model.bonder, cfg.OPTIM2)
                 self.sched2 = build_lr_scheduler(self.optim2, cfg.OPTIM2)
                 self.register_model("bonder_learner", self.model.bonder, self.optim2,
@@ -909,7 +910,7 @@ class LocProto(TrainerX):
         self.evaluator.reset()
 
         gen_score = []
-        gamma = 0.9
+        gamma = 0.1
 
         if not hasattr(self, "_printed_T"):
             print(f"[GEN score] T = {T}, gamma = {gamma}")
