@@ -162,6 +162,11 @@ def main(args):
     if trainer.cfg.use_refined and trainer.cfg.TRAINER=="LocProto":
         trainer.model.text_prototypes = torch.load(osp.join(args.model_dir, 'proto.pth'))
 
+    # XONG NHỚ XÓA
+    if trainer.cfg.use_refined and trainer.cfg.TRAINER.NAME=="LocProto":
+        trainer.model.text_prototypes = torch.load(osp.join(args.model_dir, 'proto.pth'))
+        print("Load refined text embedding (outside)")
+
     # if args.in_dataset in ['skin40', 'ISIC', 'Dermnet', 'BTXRD']:
     #     out_datasets = [item for item in ['skin40', 'ISIC', 'Dermnet'] if item != args.in_dataset]
     #     id_data_loader = trainer.dm.id_loader
@@ -261,7 +266,7 @@ def main(args):
 
 
     """============ NƠI GỌI HÀM GEN ====== START ========================="""
-    trainer.test()
+    # trainer.test()
     in_score_gen, _, _, _ = trainer.test_ood(id_data_loader, args.T)
     auroc_list_gen, aupr_list_gen, fpr_list_gen = [], [], []
 
