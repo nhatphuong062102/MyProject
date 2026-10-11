@@ -152,6 +152,9 @@ def main(args):
 
     trainer = build_trainer(cfg)
 
+    #XONG NHỚ XÓA
+    print("TRAIN BATCH SIZE:", cfg.DATALOADER.TRAIN_X.BATCH_SIZE)
+
     if args.eval_only:
         trainer.load_model(args.model_dir, epoch=args.load_epoch)
         trainer.test()
