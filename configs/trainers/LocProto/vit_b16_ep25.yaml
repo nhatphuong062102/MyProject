@@ -1,6 +1,6 @@
 DATALOADER:
   TRAIN_X:
-    BATCH_SIZE: 64
+    BATCH_SIZE: 8
   TEST:
     BATCH_SIZE: 100
   NUM_WORKERS: 2
@@ -15,7 +15,7 @@ INPUT:
 
 OPTIM:
   NAME: "adamw"
-  LR: 2e-5                #2e-5: Phiên bản riêng ; 5e-5: Phiên bản chung
+  LR: 2e-5              #cho attn_layer - layer cuối image encoder #2e-5: Phiên bản riêng ; 5e-5: Phiên bản chung
   WEIGHT_DECAY: 0.01
   MAX_EPOCH: 75
   LR_SCHEDULER: "cosine"
@@ -24,7 +24,7 @@ OPTIM:
   WARMUP_MIN_LR: 1e-5
 
 TRAIN:
-  PRINT_FREQ: 2
+  PRINT_FREQ: 16
 
 MODEL:
   BACKBONE:
