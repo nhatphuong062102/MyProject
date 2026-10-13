@@ -154,8 +154,8 @@ def main(args):
 
     #XONG NHỚ XÓA
     print("TRAIN BATCH SIZE:", cfg.DATALOADER.TRAIN_X.BATCH_SIZE)
-    print(f"[LEARNING RATE] attn = {trainer.get_current_lr(names='attn_learner'):.2e}")
-    print(f"[LEARNING RATE] bonder = {trainer.get_current_lr(names='bonder_learner'):.2e}")
+    print(f"[LEARNING RATE] OPTIM.LR (attn): {cfg.OPTIM.LR:.0e}")
+    print(f"[LEARNING RATE] OPTIM2.LR (bonder): {cfg.OPTIM2.LR:.0e}")
 
     if args.eval_only:
         trainer.load_model(args.model_dir, epoch=args.load_epoch)

@@ -598,11 +598,7 @@ class TrainerXU(SimpleTrainer):
                 info += [f"time {batch_time.val:.3f} ({batch_time.avg:.3f})"]
                 info += [f"data {data_time.val:.3f} ({data_time.avg:.3f})"]
                 info += [f"{losses}"]
-                # info += [f"lr {self.get_current_lr():.4e}"]    #GỐC
-                
-                info += [f"lr_attn {self.get_current_lr():.4e}"]
-                info += [f"lr_bonder {self.get_current_lr(names='bonder_learner'):.4e}"]
-
+                info += [f"lr {self.get_current_lr():.4e}"]
                 info += [f"eta {eta}"]
                 print(" ".join(info))
 
@@ -659,7 +655,11 @@ class TrainerX(SimpleTrainer):
                 info += [f"time {batch_time.val:.3f} ({batch_time.avg:.3f})"]
                 info += [f"data {data_time.val:.3f} ({data_time.avg:.3f})"]
                 info += [f"{losses}"]
-                info += [f"lr {self.get_current_lr():.4e}"]
+
+                # info += [f"lr {self.get_current_lr():.4e}"]   #GỐC
+                info += [f"lr_attn {self.get_current_lr():.4e}"]
+                info += [f"lr_bonder {self.get_current_lr(names='bonder_learner'):.4e}"]
+
                 info += [f"eta {eta}"]
                 print(" ".join(info))
 

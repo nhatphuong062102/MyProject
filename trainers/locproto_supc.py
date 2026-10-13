@@ -559,9 +559,9 @@ class LocProto(TrainerX):
                 cfg.OPTIM2 = deepcopy(cfg.OPTIM)
                 #cfg.OPTIM2.LR = cfg.OPTIM.LR    # Phiên bản LR dùng chung
 
-                cfg.OPTIM2.LR = 1e-3            # GỐC - Phiên bản riêng cho bonder
+                # cfg.OPTIM2.LR = 1e-3            # GỐC - Phiên bản riêng cho bonder
                 # cfg.OPTIM2.LR = 1e-4
-                # cfg.OPTIM2.LR = 3e-4
+                cfg.OPTIM2.LR = 3e-4
                 # cfg.OPTIM2.LR = 3e-3
 
                 self.optim2 = build_optimizer(self.model.bonder, cfg.OPTIM2)
