@@ -558,11 +558,7 @@ class LocProto(TrainerX):
             if cfg.is_bonder:
                 cfg.OPTIM2 = deepcopy(cfg.OPTIM)
                 # cfg.OPTIM2.LR = cfg.OPTIM.LR    # Phiên bản LR dùng chung
-
-                # cfg.OPTIM2.LR = 1e-3            # GỐC Phiên bản riêng cho bonder
-                cfg.OPTIM2.LR = 3e-3
-                # cfg.OPTIM2.LR = 3e-4
-
+                cfg.OPTIM2.LR = 1e-3            # Phiên bản riêng cho bonder
                 self.optim2 = build_optimizer(self.model.bonder, cfg.OPTIM2)
                 self.sched2 = build_lr_scheduler(self.optim2, cfg.OPTIM2)
                 self.register_model("bonder_learner", self.model.bonder, self.optim2,

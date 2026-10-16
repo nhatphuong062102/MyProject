@@ -156,6 +156,9 @@ def main(args):
     print("TRAIN BATCH SIZE:", cfg.DATALOADER.TRAIN_X.BATCH_SIZE)
     print(f"[LEARNING RATE] OPTIM.LR (attn): {cfg.OPTIM.LR:.0e}")
     print(f"[LEARNING RATE] OPTIM2.LR (bonder): {cfg.OPTIM2.LR:.0e}")
+    print(f"WARMUP_EPOCH = {cfg.OPTIM.WARMUP_EPOCH}")
+    print(f"WARMUP_TYPE = {cfg.OPTIM.WARMUP_TYPE}")
+    print(f"WARMUP_MIN_LR = {cfg.OPTIM.WARMUP_MIN_LR}")
 
     if args.eval_only:
         trainer.load_model(args.model_dir, epoch=args.load_epoch)
