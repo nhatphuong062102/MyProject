@@ -158,7 +158,8 @@ def main(args):
     print(f"[LEARNING RATE] OPTIM2.LR (bonder): {cfg.OPTIM2.LR:.0e}")
     print(f"WARMUP_EPOCH = {cfg.OPTIM.WARMUP_EPOCH}")
     print(f"WARMUP_TYPE = {cfg.OPTIM.WARMUP_TYPE}")
-    print(f"WARMUP_MIN_LR = {cfg.OPTIM.WARMUP_MIN_LR}")
+    print(f"WARMUP_CONS_LR (attn) = {cfg.OPTIM.WARMUP_CONS_LR}")
+    print(f"WARMUP_CONS_LR (bonder) = {cfg.OPTIM2.WARMUP_CONS_LR}")
 
     if args.eval_only:
         trainer.load_model(args.model_dir, epoch=args.load_epoch)
