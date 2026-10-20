@@ -30,7 +30,7 @@ for SEED in 1
 do
     for SHOTS in 32
     do
-        DIR=output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/ep100
+        DIR=output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/ep200
         # if [ -d "$DIR" ]; the6
         #     echo "Oops! The results exist at ${DIR} (so skip this job)"
         # else
@@ -54,7 +54,7 @@ do
         TRAINER.LOCOOP.CLASS_TOKEN_POSITION ${CTP} \
         DATASET.NUM_SHOTS ${SHOTS} \
         DATASET.SUBSAMPLE_CLASSES base \
-        TRAIN.CHECKPOINT_FREQ 10 \
+        TRAIN.CHECKPOINT_FREQ 50 \
         TEST.NO_TEST True 
     done
 done
