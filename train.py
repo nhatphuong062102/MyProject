@@ -160,6 +160,7 @@ def main(args):
     print(f"WARMUP_TYPE = {cfg.OPTIM.WARMUP_TYPE}")
     print(f"WARMUP_MIN_LR = {cfg.OPTIM.WARMUP_MIN_LR}")
     print(f"WEIGHT_DECAY = {cfg.OPTIM.WEIGHT_DECAY}")
+    print(f"MAX_EPOCH = {cfg.OPTIM.MAX_EPOCH}")
 
     if args.eval_only:
         trainer.load_model(args.model_dir, epoch=args.load_epoch)
