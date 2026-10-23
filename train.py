@@ -14,6 +14,7 @@ torch.cuda.empty_cache()
 
 
 def print_args(args, cfg):
+    print(datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y-%m-%d %H:%M:%S"))   #new
     print("***************")
     print("** Arguments **")
     print("***************")
