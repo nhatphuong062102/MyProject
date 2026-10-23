@@ -12,6 +12,8 @@ import datasets.Dermnet
 import datasets.BTXRD
 torch.cuda.empty_cache()
 
+from datetime import datetime  #new
+from zoneinfo import ZoneInfo  #new
 
 def print_args(args, cfg):
     print(datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y-%m-%d %H:%M:%S"))   #new
