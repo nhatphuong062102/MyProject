@@ -15,7 +15,7 @@ INPUT:
 
 OPTIM:
   NAME: "adamw"
-  LR: 3e-5              #cho attn_layer - layer cuối image encoder
+  LR: 4.2e-5              #cho attn_layer - layer cuối image encoder
   WEIGHT_DECAY: 0.01
   MAX_EPOCH: 200
   LR_SCHEDULER: "cosine"
