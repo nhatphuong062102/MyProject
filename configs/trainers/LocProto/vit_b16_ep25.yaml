@@ -17,7 +17,7 @@ OPTIM:
   NAME: "adamw"
   LR: 4.2e-5              #cho attn_layer - layer cuối image encoder
   WEIGHT_DECAY: 0.01
-  MAX_EPOCH: 250
+  MAX_EPOCH: 300
   LR_SCHEDULER: "cosine"
   WARMUP_EPOCH: 4
   WARMUP_TYPE: "linear"
