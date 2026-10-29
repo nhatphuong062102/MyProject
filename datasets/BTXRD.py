@@ -22,6 +22,7 @@ OOD_CLASSES = [
     "Osteofibroma",
     "Other bt",
     "Other mt",
+    "Normal",
 ]
 
 @DATASET_REGISTRY.register()
@@ -43,9 +44,14 @@ class BTXRD(DatasetBase):
                 train = preprocessed["train"]
                 test = preprocessed["test"]
         else:
-            classnames = self.read_classnames(os.path.join(self.image_dir, "train"))
-            train = self.read_data(classnames, "train")
-            test = self.read_data(classnames, "test")
+            # classnames = self.read_classnames(os.path.join(self.image_dir, "train"))
+            # train = self.read_data(classnames, "train")
+            # test = self.read_data(classnames, "test")
+
+            train_classnames = self.read_classnames(os.path.join(self.image_dir, "train"))
+            test_classnames = self.read_classnames(os.path.join(self.image_dir, "test"))
+            train = self.read_data(train_classnames, "train")
+            test = self.read_data(test_classnames, "test")
 
             preprocessed = {"train": train, "test": test}
             with open(self.preprocessed, "wb") as f:
