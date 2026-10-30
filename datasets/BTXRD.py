@@ -17,7 +17,12 @@ ID_CLASSES = [
 ]
 
 OOD_CLASSES = [
-    "Skin40",
+    "Giant cell tumor",
+    "Synovial osteochondroma",
+    "Osteofibroma",
+    "Other bt",
+    "Other mt",
+    "Normal",
 ]
 
 @DATASET_REGISTRY.register()
