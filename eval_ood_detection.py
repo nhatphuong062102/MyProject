@@ -13,6 +13,7 @@ import datasets.skin40
 import datasets.ISIC
 import datasets.Dermnet
 import datasets.BTXRD
+import datasets.MixOOD
 from os import path as osp
 
 from datetime import datetime  #new
@@ -166,7 +167,7 @@ def main(args):
     #     out_datasets = [item for item in ['skin40', 'ISIC', 'Dermnet'] if item != args.in_dataset]
     #     id_data_loader = trainer.dm.id_loader
 
-    if args.in_dataset in ['skin40', 'BTXRD']:
+    if args.in_dataset in ['skin40', 'BTXRD', 'MixOOD']:
         out_datasets = [args.in_dataset]
         id_data_loader = trainer.dm.id_loader
     elif args.in_dataset == 'ISIC':

@@ -10,6 +10,7 @@ import datasets.skin40
 import datasets.ISIC
 import datasets.Dermnet
 import datasets.BTXRD
+import datasets.MixOOD
 torch.cuda.empty_cache()
 
 from datetime import datetime  #new
