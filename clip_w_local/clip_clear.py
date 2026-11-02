@@ -12,6 +12,9 @@ from tqdm import tqdm
 from .model_clear import build_model
 from .simple_tokenizer import SimpleTokenizer as _Tokenizer
 
+import torch.nn as nn
+import torch.nn.functional as F
+
 try:
     from torchvision.transforms import InterpolationMode
     BICUBIC = InterpolationMode.BICUBIC
@@ -219,3 +222,69 @@ def tokenize(texts: Union[str, List[str]], context_length: int = 77, truncate: b
         result[i, :len(tokens)] = torch.tensor(tokens)
 
     return result
+
+
+# ======================================================================================
+# [MỚI] Thích ứng ViT với kích thước ảnh đầu vào khác 224 (đọc từ cfg.INPUT.SIZE)
+
+# ======================================================================================
+
+
+def resample_pos_embed(pos_embed: torch.Tensor, new_grid):
+    """
+    Nội suy bicubic positional embedding của ViT sang lưới patch mới.
+
+    pos_embed : [1 + g*g, D]  (dòng 0 là token CLS, g*g dòng còn lại là patch; lưới gốc phải vuông)
+    new_grid  : (new_gh, new_gw) = (H // patch_size, W // patch_size)
+    return    : [1 + new_gh*new_gw, D]  (dòng CLS giữ nguyên, không nội suy)
+    """
+    n_patch = pos_embed.shape[0] - 1
+    g = int(round(n_patch ** 0.5))
+    assert g * g == n_patch, f"Positional embedding gốc không phải lưới vuông (n_patch={n_patch})"
+    new_gh, new_gw = new_grid
+    if (new_gh, new_gw) == (g, g):
+        return pos_embed
+
+    cls_pe, grid_pe = pos_embed[:1], pos_embed[1:]
+    grid_pe = grid_pe.reshape(1, g, g, -1).permute(0, 3, 1, 2).float()          # [1, D, g, g]
+    grid_pe = F.interpolate(grid_pe, size=(new_gh, new_gw), mode="bicubic", align_corners=False)
+    grid_pe = grid_pe.permute(0, 2, 3, 1).reshape(new_gh * new_gw, -1).to(pos_embed.dtype)  # [new_gh*new_gw, D]
+    return torch.cat([cls_pe, grid_pe], dim=0)
+
+
+def adapt_visual_to_input_size(model, input_size):
+    """
+    Làm cho image encoder ViT của CLIP chạy được với ảnh kích thước input_size (đọc từ cfg.INPUT.SIZE).
+    Chỉ thay positional embedding (nội suy từ bảng gốc 14x14 của ViT-B/16); mọi trọng số khác giữ nguyên.
+
+    input_size : int hoặc (H, W); H và W phải chia hết cho patch_size.
+    Với backbone không phải ViT (ví dụ RN50): không làm gì, chỉ cảnh báo.
+    Nếu lưới patch mới trùng lưới gốc (ví dụ 224 với ViT-B/16): trả lại model nguyên vẹn.
+    """
+    visual = model.visual
+    if not (hasattr(visual, "positional_embedding") and hasattr(visual, "conv1")):
+        warnings.warn("adapt_visual_to_input_size: backbone không phải ViT, bỏ qua.")
+        return model
+
+    if isinstance(input_size, int):
+        H = W = input_size
+    else:
+        H, W = int(input_size[0]), int(input_size[1])
+    patch = visual.conv1.kernel_size[0]
+    assert H % patch == 0 and W % patch == 0, (
+        f"INPUT.SIZE=({H}, {W}) phải chia hết cho patch_size={patch}"
+    )
+    new_grid = (H // patch, W // patch)
+
+    old_pe = visual.positional_embedding
+    old_g = int(round((old_pe.shape[0] - 1) ** 0.5))
+    if new_grid == (old_g, old_g):
+        print(f"[adapt_visual_to_input_size] Lưới patch {old_g}x{old_g} trùng bảng gốc, giữ nguyên positional embedding.")
+        return model
+
+    new_pe = resample_pos_embed(old_pe.data, new_grid)
+    visual.positional_embedding = nn.Parameter(new_pe, requires_grad=old_pe.requires_grad)
+    visual.input_resolution = H if H == W else (H, W)
+    print(f"[adapt_visual_to_input_size] Input {H}x{W}: positional embedding {tuple(old_pe.shape)} -> {tuple(new_pe.shape)} "
+          f"(lưới patch {old_g}x{old_g} -> {new_grid[0]}x{new_grid[1]}, số local feature N = {new_grid[0] * new_grid[1]})")
+    return model
