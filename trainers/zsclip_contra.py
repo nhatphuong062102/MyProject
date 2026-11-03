@@ -10,8 +10,8 @@ from clip_w_local import clip_clear as clip
 # from clip_w_local import clip as clip0
 from clip_w_local.model import convert_weights
 
-from .zsclip_clear import load_clip_to_cpu
-# from .zsclip_clear import load_clip_to_cpu, load_clip_to_cpu_resized   # [MỚI] thêm load_clip_to_cpu_resized (DÙNG CHO ZERO-SHOT)
+# from .zsclip_clear import load_clip_to_cpu
+from .zsclip_clear import load_clip_to_cpu, load_clip_to_cpu_resized   # [MỚI] thêm load_clip_to_cpu_resized (DÙNG CHO ZERO-SHOT)
 # from .locoop import load_clip_to_cpu as load_clip_to_cpu0
 # from .imagenet_templates import IMAGENET_TEMPLATES, IMAGENET_TEMPLATES_SELECT
 import numpy as np
@@ -95,8 +95,8 @@ class ZeroshotCLIP_Contra(TrainerX):
             classnames = self.dm.dataset.classnames
 
         print(f"Loading CLIP (backbone: {cfg.MODEL.BACKBONE.NAME})")
-        clip_model = load_clip_to_cpu(cfg)
-        # clip_model = load_clip_to_cpu_resized(cfg)   # [MỚI] nội suy positional embedding theo cfg.INPUT.SIZE (DÙNG CHO ZERO-SHOT)
+        # clip_model = load_clip_to_cpu(cfg)
+        clip_model = load_clip_to_cpu_resized(cfg)   # [MỚI] nội suy positional embedding theo cfg.INPUT.SIZE (DÙNG CHO ZERO-SHOT)
         # clip_ori_model = load_clip_to_cpu0(cfg)
         clip_model.to(self.device)
         # clip_ori_model.to(self.device)

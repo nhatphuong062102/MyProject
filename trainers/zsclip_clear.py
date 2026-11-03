@@ -53,10 +53,10 @@ def load_clip_to_cpu(cfg):
 
 
 # [MỚI] Hàm load CLIP có thích ứng kích thước ảnh theo cfg.INPUT.SIZE (DÙNG CHO ZERO-SHOT)
-# def load_clip_to_cpu_resized(cfg):
-#     model = load_clip_to_cpu(cfg)
-#     model = clip.adapt_visual_to_input_size(model, cfg.INPUT.SIZE)
-#     return model
+def load_clip_to_cpu_resized(cfg):
+    model = load_clip_to_cpu(cfg)
+    model = clip.adapt_visual_to_input_size(model, cfg.INPUT.SIZE)
+    return model
 
 
 @TRAINER_REGISTRY.register()
@@ -69,8 +69,8 @@ class ZeroshotCLIP_Clear(TrainerX):
             classnames = self.dm.dataset.classnames
 
         print(f"Loading CLIP (backbone: {cfg.MODEL.BACKBONE.NAME})")
-        clip_model = load_clip_to_cpu(cfg)
-        # clip_model = load_clip_to_cpu_resized(cfg)   # [MỚI] nội suy positional embedding theo cfg.INPUT.SIZE (DÙNG CHO ZERO-SHOT)
+        # clip_model = load_clip_to_cpu(cfg)
+        clip_model = load_clip_to_cpu_resized(cfg)   # [MỚI] nội suy positional embedding theo cfg.INPUT.SIZE (DÙNG CHO ZERO-SHOT)
         clip_model.to(self.device)
 
         temp = CUSTOM_TEMPLATES[cfg.DATASET.NAME]
