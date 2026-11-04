@@ -10,8 +10,8 @@ from clip_w_local import clip_clear as clip
 # from clip_w_local import clip as clip0
 from clip_w_local.model import convert_weights
 
-# from .zsclip_clear import load_clip_to_cpu
-from .zsclip_clear import load_clip_to_cpu, load_clip_to_cpu_resized   # [MỚI] thêm load_clip_to_cpu_resized (DÙNG CHO ZERO-SHOT)
+from .zsclip_clear import load_clip_to_cpu
+# from .zsclip_clear import load_clip_to_cpu, load_clip_to_cpu_resized   # [MỚI] thêm load_clip_to_cpu_resized (DÙNG CHO ZERO-SHOT)
 # from .locoop import load_clip_to_cpu as load_clip_to_cpu0
 # from .imagenet_templates import IMAGENET_TEMPLATES, IMAGENET_TEMPLATES_SELECT
 import numpy as np
@@ -71,9 +71,9 @@ def entropy_select_topk2(p, top_k, label, num_of_local_feature=196):
     label_repeat = label.repeat_interleave(num_of_local_feature)   # [6272, 1000]
     p = F.softmax(p, dim=-1)
     entro = torch.sum(p * torch.log(p+1e-5), 1)
-    # entro = entro.view(bs, 196)
-    entro = entro.view(bs, -1)                      # [MỚI] không cố định 196 patch
-    num_of_local_feature = entro.shape[1]           # [MỚI] N thực tế = (H/16)*(W/16), ví dụ 784 ở 448
+    entro = entro.view(bs, 196)
+    # entro = entro.view(bs, -1)                      # [MỚI] không cố định 196 patch
+    # num_of_local_feature = entro.shape[1]           # [MỚI] N thực tế = (H/16)*(W/16), ví dụ 784 ở 448
     topk_idx = torch.topk(entro, k=top_k, dim=1)[1]   # 熵最小的k个patch
     mask = torch.zeros((bs, num_of_local_feature), dtype=torch.bool, device=p.device)
     mask.scatter_(1, topk_idx, True)
@@ -97,8 +97,8 @@ class ZeroshotCLIP_Contra(TrainerX):
             classnames = self.dm.dataset.classnames
 
         print(f"Loading CLIP (backbone: {cfg.MODEL.BACKBONE.NAME})")
-        # clip_model = load_clip_to_cpu(cfg)
-        clip_model = load_clip_to_cpu_resized(cfg)   # [MỚI] nội suy positional embedding theo cfg.INPUT.SIZE (DÙNG CHO ZERO-SHOT)
+        clip_model = load_clip_to_cpu(cfg)
+        # clip_model = load_clip_to_cpu_resized(cfg)   # [MỚI] nội suy positional embedding theo cfg.INPUT.SIZE (DÙNG CHO ZERO-SHOT)
         # clip_ori_model = load_clip_to_cpu0(cfg)
         clip_model.to(self.device)
         # clip_ori_model.to(self.device)
@@ -151,8 +151,8 @@ class ZeroshotCLIP_Contra(TrainerX):
     def model_inference(self, image, mask=None):
         # [MỚI] test transform (MultiCropSquareCenter) trả về [B, 4, 3, H, W] = 3 crop + 1 full.
         # Zero-shot chỉ dùng view cuối (full: resize cạnh ngắn + center-crop, giống tiền xử lý CLIP chuẩn).
-        if image.dim() == 5:
-            image = image[:, -1]
+        # if image.dim() == 5:
+        #     image = image[:, -1]
         image_features, local_feats, _ = self.clip_model.encode_image(image, mask=mask)
         image_features = image_features / image_features.norm(dim=-1, keepdim=True)
         local_features = local_feats / local_feats.norm(dim=-1, keepdim=True)
@@ -182,17 +182,17 @@ class ZeroshotCLIP_Contra(TrainerX):
 
     # [MỚI] Ghi đè test() chung (utils/trainer.py): ở đây model_inference trả về tuple (logits, local_logits)
     # nên test() chung báo lỗi. Hàm này chỉ tính độ chính xác zero-shot trên tập test.
-    @torch.no_grad()
-    def test(self, split=None):
-        self.set_model_mode("eval")
-        self.evaluator.reset()
-        print("Evaluate on the *test* set (zero-shot)")
-        for batch_idx, batch in enumerate(tqdm(self.test_loader)):
-            input, label = self.parse_batch_test(batch)
-            output, _ = self.model_inference(input)
-            self.evaluator.process(output, label)
-        results = self.evaluator.evaluate()
-        return list(results.values())[0]
+    # @torch.no_grad()
+    # def test(self, split=None):
+    #     self.set_model_mode("eval")
+    #     self.evaluator.reset()
+    #     print("Evaluate on the *test* set (zero-shot)")
+    #     for batch_idx, batch in enumerate(tqdm(self.test_loader)):
+    #         input, label = self.parse_batch_test(batch)
+    #         output, _ = self.model_inference(input)
+    #         self.evaluator.process(output, label)
+    #     results = self.evaluator.evaluate()
+    #     return list(results.values())[0]
 
 
     @torch.no_grad()

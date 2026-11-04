@@ -28,9 +28,9 @@ kalign=10
 
 for SEED in 1
 do
-    for SHOTS in 1    # CŨ: 32
+    for SHOTS in 32
     do
-        DIR=output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/size224_both
+        DIR=output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/size224
         # if [ -d "$DIR" ]; the6
         #     echo "Oops! The results exist at ${DIR} (so skip this job)"
         # else
