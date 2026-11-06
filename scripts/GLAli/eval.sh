@@ -23,7 +23,7 @@ kalign=22
 # SEED=2
 for DATASET in ${1:-BTXRD}  # eurosat fgvc_aircraft stanford_cars skin40 ISIC
 do
-    for SHOTS in 1          #CŨ:  32
+    for SHOTS in 32
     do
         for SEED in 1
         do
@@ -33,9 +33,9 @@ do
             --trainer ${TRAINER} \
             --dataset-config-file configs/datasets/${DATASET}.yaml \
             --seed ${SEED} \
-            --output-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/SmokeTest/size336_pe \
-            --model-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/SmokeTest/size336_pe \
-            --load-epoch 10 \
+            --output-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/SmokeTest/size336_pe_lr4.2e-4 \
+            --model-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/SmokeTest/size336_pe_lr4.2e-4 \
+            --load-epoch 250 \
             --config-file configs/trainers/${TRAINER}/${CFG}.yaml \
             --T ${T} \
             --use_refined \
