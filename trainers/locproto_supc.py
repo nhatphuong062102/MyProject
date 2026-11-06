@@ -70,6 +70,11 @@ def load_clip_to_cpu_resized(cfg):
     model = clip.adapt_visual_to_input_size(model, cfg.INPUT.SIZE)
     return model
 
+# [MỚI] Công tắc huấn luyện positional embedding của image encoder.
+# True = mở positional embedding để huấn luyện. False = đóng băng như cũ, mọi hành vi không đổi
+# Train và eval dùng chung file nên đồng bộ tự động.
+TRAIN_POS_EMBED = True
+
 
 def get_dense_logits2(image_features, local_image_features, all_text_features, mean_text_features, topk=50):
     base_logits = image_features @ mean_text_features.T   # [bs, 512] * [N, 512] -> [bs, N]
@@ -540,7 +545,9 @@ class LocProto(TrainerX):
 
         print("Turning off gradients in both the image and the text encoder")
         for name, param in self.model.named_parameters():
-            if 'image_encoder.transformer.resblocks.11.attn' in name or 'bonder' in name: # or 'attnpool' in name
+            # if 'image_encoder.transformer.resblocks.11.attn' in name or 'bonder' in name: # or 'attnpool' in name
+            if ('image_encoder.transformer.resblocks.11.attn' in name or 'bonder' in name
+                    or (TRAIN_POS_EMBED and name == 'image_encoder.positional_embedding')):   # [MỚI] mở thêm positional embedding
                 param.requires_grad_(True)
             else:
                 param.requires_grad_(False)
@@ -575,6 +582,17 @@ class LocProto(TrainerX):
                 self.sched2 = build_lr_scheduler(self.optim2, cfg.OPTIM2)
                 self.register_model("bonder_learner", self.model.bonder, self.optim2,
                                     self.sched2)
+
+            # [MỚI] Mở positional embedding của image encoder để huấn luyện.
+            # Bọc cùng một Parameter trong nn.ParameterList để đăng ký như bonder: nhờ vậy optimizer, scheduler
+            # và checkpoint ("pos_embed_learner") đều xử lý được; không đăng ký thì checkpoint sẽ KHÔNG lưu positional embedding.
+            if TRAIN_POS_EMBED:
+                self.pe_holder = nn.ParameterList([self.model.image_encoder.positional_embedding])
+                self.optim3 = build_optimizer(self.pe_holder, cfg.OPTIM)      # cùng LR với attn (cfg.OPTIM.LR)
+                self.sched3 = build_lr_scheduler(self.optim3, cfg.OPTIM)
+                self.register_model("pos_embed_learner", self.pe_holder, self.optim3, self.sched3)
+                print(f"[TRAIN_POS_EMBED] positional embedding {tuple(self.pe_holder[0].shape)}: "
+                      f"requires_grad={self.pe_holder[0].requires_grad}, lr={cfg.OPTIM.LR}")
 
         elif "RN" in cfg.MODEL.BACKBONE.NAME:
             self.optim = build_optimizer(self.model.image_encoder.attnpool, cfg.OPTIM)
