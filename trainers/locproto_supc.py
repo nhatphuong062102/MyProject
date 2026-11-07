@@ -595,7 +595,7 @@ class LocProto(TrainerX):
                 self.sched3 = build_lr_scheduler(self.optim3, cfg.OPTIM3)
                 self.register_model("pos_embed_learner", self.pe_holder, self.optim3, self.sched3)
                 print(f"[TRAIN_POS_EMBED] positional embedding {tuple(self.pe_holder[0].shape)}: "
-                      f"requires_grad={self.pe_holder[0].requires_grad}, lr={cfg.OPTIM3.LR}")
+                      f"requires_grad={self.pe_holder[0].requires_grad}, lr={cfg.OPTIM3.LR:.1e}")
 
         elif "RN" in cfg.MODEL.BACKBONE.NAME:
             self.optim = build_optimizer(self.model.image_encoder.attnpool, cfg.OPTIM)
