@@ -590,7 +590,7 @@ class LocProto(TrainerX):
                 self.pe_holder = nn.ParameterList([self.model.image_encoder.positional_embedding])
                 cfg.OPTIM3 = deepcopy(cfg.OPTIM)                                # [MỚI] bản sao riêng cho positional embedding
                 # cfg.OPTIM3.LR = cfg.OPTIM.LR                                  # cùng LR với attn (cfg.OPTIM.LR)
-                cfg.OPTIM3.LR = 4.2e-4                                          # [MỚI] LR riêng cho positional embedding
+                cfg.OPTIM3.LR = 1.4e-4                                          # [MỚI] LR riêng cho positional embedding
                 self.optim3 = build_optimizer(self.pe_holder, cfg.OPTIM3)
                 self.sched3 = build_lr_scheduler(self.optim3, cfg.OPTIM3)
                 self.register_model("pos_embed_learner", self.pe_holder, self.optim3, self.sched3)
