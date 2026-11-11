@@ -14,7 +14,7 @@ NCTX=16
 
 T=1
 
-kalign=13
+kalign=20
 
 # SHOTS=16
 # MODEL_dir=$5
@@ -33,8 +33,8 @@ do
             --trainer ${TRAINER} \
             --dataset-config-file configs/datasets/${DATASET}.yaml \
             --seed ${SEED} \
-            --output-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/size256_150-13 \
-            --model-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/size256_150-13 \
+            --output-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/size256_100-20 \
+            --model-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/size256_100-20 \
             --load-epoch 250 \
             --config-file configs/trainers/${TRAINER}/${CFG}.yaml \
             --T ${T} \

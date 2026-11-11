@@ -23,14 +23,14 @@ CSC=False
 
 #lambda=${2:-0.95}
 lambda=0.95
-topk=150
-kalign=13
+topk=100
+kalign=20
 
 for SEED in 1
 do
     for SHOTS in 32
     do
-        DIR=output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/size256_150-13
+        DIR=output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/size256_100-20
         # if [ -d "$DIR" ]; the6
         #     echo "Oops! The results exist at ${DIR} (so skip this job)"
         # else
