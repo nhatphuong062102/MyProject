@@ -73,7 +73,7 @@ def load_clip_to_cpu_resized(cfg):
 # [MỚI] Công tắc huấn luyện positional embedding của image encoder.
 # True = mở positional embedding để huấn luyện. False = đóng băng như cũ, mọi hành vi không đổi
 # Train và eval dùng chung file nên đồng bộ tự động.
-TRAIN_POS_EMBED = False
+TRAIN_POS_EMBED = True
 
 
 def get_dense_logits2(image_features, local_image_features, all_text_features, mean_text_features, topk=50):
