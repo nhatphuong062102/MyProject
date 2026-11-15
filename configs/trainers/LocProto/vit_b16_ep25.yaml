@@ -24,7 +24,9 @@ OPTIM:
   WARMUP_MIN_LR: 1e-6
 
 TRAIN:
-  PRINT_FREQ: 8
+  PRINT_FREQ: 14
+# 7class: 14
+# 4class: 8
 
 MODEL:
   BACKBONE:
