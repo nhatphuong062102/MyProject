@@ -43,6 +43,7 @@ CUSTOM_TEMPLATES = {
     "ISIC2": "a photo of a {}, a type of skin disease.",
     "BTXRD": "a photo of a {}, a type of bone tumor",
     "MixOOD": "a photo of a {}, a type of bone tumor",
+    "OtherOOD": "a photo of a {}, a type of bone tumor",
 }
 
 def entropy_select_topk(p, top_k, label, num_of_local_feature=196):

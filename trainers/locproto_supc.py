@@ -65,15 +65,15 @@ def load_clip_to_cpu(cfg):
 
 
 # [MỚI] Hàm load CLIP có thích ứng kích thước ảnh theo cfg.INPUT.SIZE
-def load_clip_to_cpu_resized(cfg):
-    model = load_clip_to_cpu(cfg)
-    model = clip.adapt_visual_to_input_size(model, cfg.INPUT.SIZE)
-    return model
+# def load_clip_to_cpu_resized(cfg):
+#     model = load_clip_to_cpu(cfg)
+#     model = clip.adapt_visual_to_input_size(model, cfg.INPUT.SIZE)
+#     return model
 
 # [MỚI] Công tắc huấn luyện positional embedding của image encoder.
 # True = mở positional embedding để huấn luyện. False = đóng băng như cũ, mọi hành vi không đổi
 # Train và eval dùng chung file nên đồng bộ tự động.
-TRAIN_POS_EMBED = True
+# TRAIN_POS_EMBED = True
 
 
 def get_dense_logits2(image_features, local_image_features, all_text_features, mean_text_features, topk=50):
@@ -406,7 +406,9 @@ class CustomCLIP(nn.Module):
         self.image_features_store = []
         self.cfg = cfg
 
-        description_file = os.path.join('./description', f'{cfg.DATASET.NAME}.json')
+        description_file = os.path.join('./description', 'BTXRD-7class.json')
+        # description_file = os.path.join('./description', 'BTXRD-7class-v2.json')
+        # description_file = os.path.join('./description', f'{cfg.DATASET.NAME}.json')
         # description_file = os.path.join('./description', f'{cfg.DATASET.NAME}-15b.json')  #BTXRD-15b hiện giờ là BTXRD.json (để dễ chạy nhiều dataset khác nhau)
         print(f'Using description file: {description_file}')
         llm_descriptions = json.load(open(description_file))
@@ -532,8 +534,8 @@ class LocProto(TrainerX):
         self.label = []
 
         print(f"Loading CLIP (backbone: {cfg.MODEL.BACKBONE.NAME})")
-        # clip_model = load_clip_to_cpu(cfg)
-        clip_model = load_clip_to_cpu_resized(cfg)   # [MỚI] nội suy positional embedding theo cfg.INPUT.SIZE
+        clip_model = load_clip_to_cpu(cfg)
+        # clip_model = load_clip_to_cpu_resized(cfg)   # [MỚI] nội suy positional embedding theo cfg.INPUT.SIZE
 
         if cfg.TRAINER.LOCOOP.PREC == "fp32" or cfg.TRAINER.LOCOOP.PREC == "amp":
             # CLIP's default precision is fp16
@@ -545,9 +547,9 @@ class LocProto(TrainerX):
 
         print("Turning off gradients in both the image and the text encoder")
         for name, param in self.model.named_parameters():
-            # if 'image_encoder.transformer.resblocks.11.attn' in name or 'bonder' in name: # or 'attnpool' in name
-            if ('image_encoder.transformer.resblocks.11.attn' in name or 'bonder' in name
-                    or (TRAIN_POS_EMBED and name == 'image_encoder.positional_embedding')):   # [MỚI] mở thêm positional embedding
+            # if ('image_encoder.transformer.resblocks.11.attn' in name or 'bonder' in name
+            #         or (TRAIN_POS_EMBED and name == 'image_encoder.positional_embedding')):   # [MỚI] mở thêm positional embedding
+            if 'image_encoder.transformer.resblocks.11.attn' in name or 'bonder' in name: # or 'attnpool' in name
                 param.requires_grad_(True)
             else:
                 param.requires_grad_(False)
@@ -572,12 +574,10 @@ class LocProto(TrainerX):
             
             if cfg.is_bonder:
                 cfg.OPTIM2 = deepcopy(cfg.OPTIM)
-                # cfg.OPTIM2.LR = cfg.OPTIM.LR      # Phiên bản LR dùng chung
+                # cfg.OPTIM2.LR = cfg.OPTIM.LR        # Phiên bản LR dùng chung
                 # cfg.OPTIM2.LR = 1e-3                # Phiên bản riêng cho bonder
-
-                cfg.OPTIM2.LR = 1.4e-3              # tăng lr ứng với bs 16
+                cfg.OPTIM2.LR = 1.4e-3                # tăng lr ứng với bs 16
                 # cfg.OPTIM2.LR = 2e-3                # tăng lr ứng với bs 32
-
                 self.optim2 = build_optimizer(self.model.bonder, cfg.OPTIM2)
                 self.sched2 = build_lr_scheduler(self.optim2, cfg.OPTIM2)
                 self.register_model("bonder_learner", self.model.bonder, self.optim2,
@@ -586,16 +586,16 @@ class LocProto(TrainerX):
             # [MỚI] Mở positional embedding của image encoder để huấn luyện.
             # Bọc cùng một Parameter trong nn.ParameterList để đăng ký như bonder: nhờ vậy optimizer, scheduler
             # và checkpoint ("pos_embed_learner") đều xử lý được; không đăng ký thì checkpoint sẽ KHÔNG lưu positional embedding.
-            if TRAIN_POS_EMBED:
-                self.pe_holder = nn.ParameterList([self.model.image_encoder.positional_embedding])
-                cfg.OPTIM3 = deepcopy(cfg.OPTIM)                                # [MỚI] bản sao riêng cho positional embedding
-                # cfg.OPTIM3.LR = cfg.OPTIM.LR                                  # cùng LR với attn (cfg.OPTIM.LR)
-                cfg.OPTIM3.LR = 8e-5                                          # [MỚI] LR riêng cho positional embedding
-                self.optim3 = build_optimizer(self.pe_holder, cfg.OPTIM3)
-                self.sched3 = build_lr_scheduler(self.optim3, cfg.OPTIM3)
-                self.register_model("pos_embed_learner", self.pe_holder, self.optim3, self.sched3)
-                print(f"[TRAIN_POS_EMBED] positional embedding {tuple(self.pe_holder[0].shape)}: "
-                      f"requires_grad={self.pe_holder[0].requires_grad}, lr={cfg.OPTIM3.LR:.1e}")
+            # if TRAIN_POS_EMBED:
+            #     self.pe_holder = nn.ParameterList([self.model.image_encoder.positional_embedding])
+            #     cfg.OPTIM3 = deepcopy(cfg.OPTIM)                                # [MỚI] bản sao riêng cho positional embedding
+            #     # cfg.OPTIM3.LR = cfg.OPTIM.LR                                  # cùng LR với attn (cfg.OPTIM.LR)
+            #     cfg.OPTIM3.LR = 8e-5                                          # [MỚI] LR riêng cho positional embedding
+            #     self.optim3 = build_optimizer(self.pe_holder, cfg.OPTIM3)
+            #     self.sched3 = build_lr_scheduler(self.optim3, cfg.OPTIM3)
+            #     self.register_model("pos_embed_learner", self.pe_holder, self.optim3, self.sched3)
+            #     print(f"[TRAIN_POS_EMBED] positional embedding {tuple(self.pe_holder[0].shape)}: "
+            #           f"requires_grad={self.pe_holder[0].requires_grad}, lr={cfg.OPTIM3.LR:.1e}")
 
         elif "RN" in cfg.MODEL.BACKBONE.NAME:
             self.optim = build_optimizer(self.model.image_encoder.attnpool, cfg.OPTIM)

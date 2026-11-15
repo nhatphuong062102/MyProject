@@ -11,6 +11,7 @@ import datasets.ISIC
 import datasets.Dermnet
 import datasets.BTXRD
 import datasets.MixOOD
+import datasets.OtherOOD
 torch.cuda.empty_cache()
 
 from datetime import datetime  #new
