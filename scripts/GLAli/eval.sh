@@ -33,8 +33,8 @@ do
             --trainer ${TRAINER} \
             --dataset-config-file configs/datasets/${DATASET}.yaml \
             --seed ${SEED} \
-            --output-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/7class_v1-k \
-            --model-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/7class_v1-k \
+            --output-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/7class_v2 \
+            --model-dir output/${DATASET}/${TRAINER}/${CFG}_${SHOTS}shots/nctx${NCTX}_csc${CSC}_ctp${CTP}/seed${SEED}/7class_v2 \
             --load-epoch 250 \
             --config-file configs/trainers/${TRAINER}/${CFG}.yaml \
             --T ${T} \
