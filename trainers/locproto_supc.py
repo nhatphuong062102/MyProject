@@ -407,7 +407,7 @@ class CustomCLIP(nn.Module):
         self.cfg = cfg
 
         # description_file = os.path.join('./description', 'BTXRD-7class-v1-k.json')
-        description_file = os.path.join('./description', 'BTXRD-7class-v2.json')
+        description_file = os.path.join('./description', 'BTXRD-7class-v2-b.json')
         # description_file = os.path.join('./description', f'{cfg.DATASET.NAME}.json')
         # description_file = os.path.join('./description', f'{cfg.DATASET.NAME}-15b.json')  #BTXRD-15b hiện giờ là BTXRD.json (để dễ chạy nhiều dataset khác nhau)
         print(f'Using description file: {description_file}')
